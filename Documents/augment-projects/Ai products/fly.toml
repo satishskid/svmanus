@@ -1,4 +1,3 @@
-# 🚀 AIRDOCS - Fly.io Configuration
 app = "airdocs"
 primary_region = "iad"
 
@@ -15,13 +14,6 @@ primary_region = "iad"
   auto_stop_machines = false
   auto_start_machines = true
   min_machines_running = 1
-
-  [[http_service.checks]]
-    grace_period = "10s"
-    interval = "30s"
-    method = "GET"
-    timeout = "5s"
-    path = "/health"
 
 [[vm]]
   cpu_kind = "shared"
