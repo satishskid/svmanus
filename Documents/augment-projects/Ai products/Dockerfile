@@ -33,5 +33,5 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD curl -f http://localhost:8080/health || exit 1
 
-# Run the application (Fly.io sets PORT automatically)
-CMD uvicorn app:app --host 0.0.0.0 --port ${PORT:-8080}
+# Run the application (Render sets PORT automatically)
+CMD python -m uvicorn app:app --host 0.0.0.0 --port ${PORT:-10000}
