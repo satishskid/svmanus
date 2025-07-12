@@ -18,8 +18,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY ai-aggregator/backend/ .
 COPY ai-aggregator/frontend/ ./frontend/
 
-# Create necessary directories
-RUN mkdir -p generated_documents logs
+# Create necessary directories with proper permissions
+RUN mkdir -p generated_documents logs models prompts && \
+    chmod 755 generated_documents logs models prompts
 
 # Set environment variables
 ENV PYTHONPATH=/app
