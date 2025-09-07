@@ -1,0 +1,5 @@
+# Placeholder for MUAC detection TensorFlow Lite model
+# This file should be replaced with the actual trained model
+# Model should detect arm in image and output bounding box coordinates
+# Expected input: 224x224x3 RGB image (normalized 0-1)
+# Expected output: [x, y, width, height] bounding box coordinates

@@ -1,0 +1,48 @@
+# Placeholder ML Model Files
+
+This directory contains placeholder files for the ML models. In production, these would be actual TensorFlow Lite (.tflite) models.
+
+## Required Models:
+
+1. height_estimation.tflite
+   - Model for estimating child height from camera images
+   - Input: 224x224x3 RGB image + reference object height
+   - Output: Estimated height in cm
+
+2. weight_estimation.tflite
+   - Model for estimating child weight from camera images
+   - Input: 224x224x3 RGB image + estimated height
+   - Output: Estimated weight in kg
+
+3. bmi_classification.tflite
+   - Model for classifying nutritional status based on BMI
+   - Input: [height, weight, age_in_months]
+   - Output: Classification probabilities [underweight, normal, overweight]
+
+## Training Data Requirements:
+
+- Child images with known height/weight measurements
+- WHO growth reference data
+- Diverse age ranges (6-60 months)
+- Various ethnic backgrounds
+- Different lighting conditions and camera angles
+
+## Model Architecture Suggestions:
+
+1. Height Estimation:
+   - CNN backbone (MobileNetV2 or EfficientNet)
+   - Additional input for reference object dimensions
+   - Regression head for height prediction
+
+2. Weight Estimation:
+   - Similar CNN architecture
+   - Height as additional feature
+   - Regression head for weight prediction
+
+3. BMI Classification:
+   - Simple feedforward network
+   - 3-4 hidden layers
+   - Softmax output for classification
+
+## Note:
+These models should be trained on real child growth data and validated against WHO standards. The current implementation uses fallback methods when models are not available.

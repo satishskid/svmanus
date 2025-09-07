@@ -1,0 +1,261 @@
+{
+  "test_scenarios": [
+    {
+      "id": "TS001",
+      "title": "Complete Child Registration Flow",
+      "description": "Test full child registration with photo, zone assignment, and worker assignment",
+      "steps": [
+        {
+          "step": 1,
+          "action": "Launch app and login with test credentials",
+          "expected": "Login successful, redirect to child list"
+        },
+        {
+          "step": 2,
+          "action": "Tap 'Add Child' button",
+          "expected": "Open child registration form"
+        },
+        {
+          "step": 3,
+          "action": "Enter valid child data: Name: 'Test Child', DOB: '2020-01-15', Gender: 'Male'",
+          "expected": "All fields accepted without errors"
+        },
+        {
+          "step": 4,
+          "action": "Take/upload child photo",
+          "expected": "Photo appears in preview"
+        },
+        {
+          "step": 5,
+          "action": "Select zone 'Zone A' and assign worker 'John Smith'",
+          "expected": "Zone and worker selected successfully"
+        },
+        {
+          "step": 6,
+          "action": "Save child registration",
+          "expected": "Child saved and appears in list"
+        }
+      ],
+      "test_data": {
+        "child_name": "Test Child Alpha",
+        "dob": "2020-01-15",
+        "gender": "Male",
+        "zone": "Zone A",
+        "worker": "John Smith"
+      }
+    },
+    {
+      "id": "TS002",
+      "title": "ML Height/Weight Measurement",
+      "description": "Test complete height and weight measurement using ML photo analysis",
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select child from list",
+          "expected": "Open child detail screen"
+        },
+        {
+          "step": 2,
+          "action": "Tap 'Add Screening'",
+          "expected": "Open screening flow"
+        },
+        {
+          "step": 3,
+          "action": "Take height photo with reference object",
+          "expected": "Photo captured, processing starts"
+        },
+        {
+          "step": 4,
+          "action": "Verify height estimation (expected: ~95cm)",
+          "expected": "Height displayed as ~95cm ± 5cm"
+        },
+        {
+          "step": 5,
+          "action": "Take weight estimation photo",
+          "expected": "Weight estimated successfully"
+        },
+        {
+          "step": 6,
+          "action": "Verify BMI classification",
+          "expected": "BMI calculated and classified correctly"
+        }
+      ],
+      "test_data": {
+        "expected_height": 95,
+        "expected_weight": 15,
+        "tolerance": 5
+      }
+    },
+    {
+      "id": "TS003",
+      "title": "MUAC Malnutrition Detection",
+      "description": "Test MUAC measurement for malnutrition detection across different severity levels",
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to MUAC measurement screen",
+          "expected": "MUAC camera interface opens"
+        },
+        {
+          "step": 2,
+          "action": "Take MUAC photo for severe malnutrition case",
+          "expected": "Arm detected, measurement processed"
+        },
+        {
+          "step": 3,
+          "action": "Verify MUAC < 11.5cm triggers red alert",
+          "expected": "Severe malnutrition warning displayed"
+        },
+        {
+          "step": 4,
+          "action": "Test moderate case (11.5-12.5cm)",
+          "expected": "Orange warning for moderate malnutrition"
+        },
+        {
+          "step": 5,
+          "action": "Test normal case (>13.5cm)",
+          "expected": "Green 'Normal' status"
+        }
+      ],
+      "test_data": {
+        "severe_muac": 10.5,
+        "moderate_muac": 12.0,
+        "normal_muac": 14.0
+      }
+    },
+    {
+      "id": "TS004",
+      "title": "Offline Functionality Test",
+      "description": "Test app behavior when network is unavailable",
+      "steps": [
+        {
+          "step": 1,
+          "action": "Turn on airplane mode",
+          "expected": "App detects offline status"
+        },
+        {
+          "step": 2,
+          "action": "Add new child while offline",
+          "expected": "Child saved locally"
+        },
+        {
+          "step": 3,
+          "action": "Take screening measurements offline",
+          "expected": "Measurements stored locally"
+        },
+        {
+          "step": 4,
+          "action": "Turn off airplane mode",
+          "expected": "Auto-sync should trigger"
+        },
+        {
+          "step": 5,
+          "action": "Verify data synced to server",
+          "expected": "All offline data uploaded successfully"
+        }
+      ]
+    },
+    {
+      "id": "TS005",
+      "title": "Analytics Dashboard Validation",
+      "description": "Test analytics reports and data visualization",
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to analytics screen",
+          "expected": "Analytics dashboard loads"
+        },
+        {
+          "step": 2,
+          "action": "Verify malnutrition statistics",
+          "expected": "Correct counts for severe/moderate/normal cases"
+        },
+        {
+          "step": 3,
+          "action": "Test date range filtering",
+          "expected": "Data filters correctly by date range"
+        },
+        {
+          "step": 4,
+          "action": "Generate PDF report",
+          "expected": "PDF report generated successfully"
+        },
+        {
+          "step": 5,
+          "action": "Export Excel file",
+          "expected": "Excel file exports with all data"
+        }
+      ]
+    },
+    {
+      "id": "TS006",
+      "title": "Zone & Worker Management",
+      "description": "Test Excel import/export for zones and workers",
+      "steps": [
+        {
+          "step": 1,
+          "action": "Create test Excel file with 50 workers",
+          "expected": "Excel file prepared with valid data"
+        },
+        {
+          "step": 2,
+          "action": "Import workers via Excel",
+          "expected": "All 50 workers imported successfully"
+        },
+        {
+          "step": 3,
+          "action": "Verify worker assignments",
+          "expected": "Workers correctly assigned to zones"
+        },
+        {
+          "step": 4,
+          "action": "Export current worker list",
+          "expected": "Excel file exports accurately"
+        },
+        {
+          "step": 5,
+          "action": "Test invalid Excel file handling",
+          "expected": "Graceful error handling for corrupted files"
+        }
+      ]
+    },
+    {
+      "id": "TS007",
+      "title": "Performance Load Test",
+      "description": "Test app performance with large datasets",
+      "steps": [
+        {
+          "step": 1,
+          "action": "Create 100 test children",
+          "expected": "App remains responsive"
+        },
+        {
+          "step": 2,
+          "action": "Add 1000 screening records",
+          "expected": "No performance degradation"
+        },
+        {
+          "step": 3,
+          "action": "Test search functionality with large dataset",
+          "expected": "Search results appear quickly"
+        },
+        {
+          "step": 4,
+          "action": "Generate analytics with 1000+ records",
+          "expected": "Reports generate within reasonable time"
+        }
+      ]
+    }
+  ],
+  "test_images": {
+    "height_reference": "assets/test_images/height_reference.jpg",
+    "muac_severe": "assets/test_images/muac_severe.jpg",
+    "muac_moderate": "assets/test_images/muac_moderate.jpg",
+    "muac_normal": "assets/test_images/muac_normal.jpg",
+    "food_sample": "assets/test_images/food_sample.jpg"
+  },
+  "test_files": {
+    "workers_excel": "assets/test_data/workers_test.xlsx",
+    "zones_excel": "assets/test_data/zones_test.xlsx"
+  }
+}

@@ -1,0 +1,14 @@
+targets:
+  $default:
+    builders:
+      hive_generator|hive_generator:
+        enabled: true
+        options:
+          generate_for:
+            - "lib/models/child.dart"
+            - "lib/models/screening.dart"
+            - "lib/models/worker.dart"
+            - "lib/models/diet_record.dart"
+            - "lib/models/food_item.dart"
+      riverpod_generator|riverpod_generator:
+        enabled: true
