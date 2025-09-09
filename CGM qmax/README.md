@@ -1,567 +1,315 @@
-# Child Growth Monitor (CGM) App
+# 🎯 CGM QMax - Child Growth Monitoring Application
 
-A comprehensive Flutter application for malnutrition screening and nutrition intelligence, designed for healthcare workers in resource-limited settings.
+A comprehensive Flutter application designed for healthcare professionals and field workers to monitor child growth and nutrition in resource-constrained environments. Built with offline-first architecture and ML-powered analysis capabilities.
 
-## 🎯 Project Overview
+## 📋 Project Overview
 
-**CGM (Child Growth Monitor)** is a mobile-first application that enables healthcare professionals to:
-- Screen children for malnutrition using WHO growth standards
-- Perform MUAC (Mid-Upper Arm Circumference) measurements via photo analysis
-- Track child growth patterns over time
-- Generate nutrition analytics and reports
-- Export/import data via Excel for zone management
-- Work offline with automatic sync capabilities
+CGM QMax is a production-ready mobile application that empowers healthcare workers to efficiently track child growth metrics, assess nutritional status, and provide data-driven interventions. The app is specifically optimized for Samsung Galaxy devices and designed to work seamlessly in offline environments.
 
 ## 🚀 Key Features
 
-### 📊 **Malnutrition Screening**
-- **WHO Growth Standards**: Implements WHO child growth standards for accurate assessment
-- **MUAC Measurement**: AI-powered photo analysis for MUAC measurements
-- **Z-Score Calculations**: Automated calculation of weight-for-age, height-for-age, and weight-for-height z-scores
-- **Risk Classification**: Automatic classification into severe, moderate, or normal nutrition status
+### Core Functionality
+- **Child Registration & Management**: Complete biometric data capture with photo documentation
+- **ML-Powered Measurements**: AI-driven height/weight estimation using TensorFlow Lite
+- **MUAC Analysis**: Automated Mid-Upper Arm Circumference measurement via photo analysis
+- **Nutrition Tracking**: Comprehensive diet assessment with automated nutritional calculations
+- **Growth Analytics**: Real-time growth charts and percentile calculations
 
-### 📱 **Mobile-First Design**
-- **Offline-First**: Full functionality without internet connection
-- **Multi-Language Support**: English and French localization with RTL support
-- **Responsive UI**: Optimized for tablets and smartphones
-- **Dark/Light Mode**: System-adaptive theme switching
+### Data Management
+- **Offline-First Architecture**: Full functionality without internet connectivity
+- **Excel Integration**: Import/export zone and worker data via Excel files
+- **Smart Sync**: Intelligent synchronization when network is available
+- **Data Encryption**: Secure storage with Hive encrypted database
+- **Multi-User Support**: Worker management with role-based access
 
-### 📈 **Analytics & Reporting**
-- **Real-time Dashboard**: Visual analytics with charts and graphs
-- **Excel Integration**: Import/export child and screening data
-- **Zone Management**: Organize data by geographical zones
-- **Worker Management**: Track healthcare worker assignments and performance
+### Technical Features
+- **Multi-Language Support**: Internationalization ready (English/French)
+- **Samsung Optimization**: Tested on Galaxy S24/S23, A54/A34, Tab S9
+- **Performance Analytics**: Built-in usage tracking and reporting
+- **Backup & Recovery**: Automated data backup with recovery options
 
-### 🤖 **Machine Learning Integration**
-- **Height/Weight Estimation**: ML models for body measurement estimation from photos
-- **MUAC Detection**: Computer vision for accurate MUAC measurement
-- **Pose Detection**: Google ML Kit integration for body landmark detection
-- **Model Updates**: Support for model replacement and updates
+## 🛠️ Technical Architecture
 
-### 🔧 **Technical Features**
-- **Hive Database**: Fast, lightweight local storage with encryption
-- **Riverpod State Management**: Predictable state management with code generation
-- **Offline Sync**: Automatic data synchronization when online
-- **CSV/PDF Export**: Generate reports in multiple formats
-- **Camera Integration**: Direct photo capture with ML processing
+### Frontend
+- **Framework**: Flutter 3.19+ for cross-platform compatibility
+- **State Management**: Riverpod for reactive state management
+- **UI Framework**: Material Design 3 with responsive layouts
+- **Navigation**: GoRouter for declarative routing
 
-## 🏗️ **Architecture**
+### Storage & Sync
+- **Local Storage**: Hive for offline-first data persistence
+- **Encryption**: AES-256 encryption for sensitive data
+- **Sync Engine**: Custom offline-to-online synchronization
+- **Conflict Resolution**: Intelligent merge strategies
 
-### **Tech Stack**
-- **Framework**: Flutter 3.35.3
-- **Language**: Dart 3.9.2
-- **State Management**: Riverpod + Riverpod Generator
-- **Database**: Hive (with TypeAdapters)
-- **ML Framework**: TensorFlow Lite + Google ML Kit
-- **Charts**: Community Charts Flutter
-- **Excel**: Syncfusion Flutter XlsIO
-- **Localization**: Flutter Localizations + intl
+### Machine Learning
+- **Framework**: TensorFlow Lite for on-device inference
+- **Models**: 
+  - Height/Weight estimation from photos
+  - MUAC detection and measurement
+  - Nutrition analysis algorithms
+- **Performance**: Optimized for mobile devices
 
-### **Project Structure**
-```
-lib/
-├── constants/          # App constants and configurations
-├── l10n/              # Localization files (EN/FR)
-├── models/            # Data models with Hive integration
-├── providers/         # Riverpod state management
-├── screens/           # UI screens and pages
-├── services/          # Business logic and API services
-├── utils/            # Utility functions and helpers
-└── widgets/          # Reusable UI components
-```
+## 📱 Device Compatibility
 
-## 🛠️ **Installation & Setup**
+### Primary Targets
+- **Samsung Galaxy S24/S23**: Flagship devices with advanced cameras
+- **Samsung Galaxy A54/A34**: Mid-range devices for field deployment
+- **Samsung Galaxy Tab S9**: Tablets for enhanced data entry
 
-### **Prerequisites**
-- Flutter 3.35.3 or higher
-- Dart 3.9.2 or higher
-- Android Studio / Xcode (for mobile development)
-- Chrome (for web development)
+### Android Requirements
+- **Minimum SDK**: Android 8.0 (API level 26)
+- **Target SDK**: Android 14 (API level 34)
+- **Architecture**: ARM64 and x86_64 support
 
-### **Quick Start**
+## 🏗️ Development Setup
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/satishskid/cgmax.git
-   cd cgmax
-   ```
-
-2. **Install dependencies**
-   ```bash
-   flutter pub get
-   ```
-
-3. **Generate code**
-   ```bash
-   flutter pub run build_runner build --delete-conflicting-outputs
-   ```
-
-4. **Run the app**
-   ```bash
-   # For mobile
-   flutter run
-   
-   # For web
-   flutter run -d chrome
-   ```
-
-### **Platform-Specific Setup**
-
-#### **Android Setup**
+### Prerequisites
 ```bash
-flutter doctor --android-licenses
+# Flutter SDK
+flutter --version  # Requires 3.19.0+
+dart --version     # Requires 3.3.0+
+
+# Development Tools
+Android Studio / VS Code
+Android SDK (API 34)
+Git for version control
+```
+
+### Installation
+```bash
+# Clone the repository
+git clone https://github.com/satishskid/cgmflutter.git
+cd cgmflutter
+
+# Install dependencies
+flutter pub get
+
+# Generate localization files
+flutter gen-l10n
+
+# Run development server
+flutter run --debug
+```
+
+### Build Commands
+```bash
+# Development build
+flutter run --debug
+
+# Production build
+flutter build appbundle --release
 flutter build apk --release
-```
 
-#### **iOS Setup**
-```bash
-# On macOS
-sudo gem install cocoapods
-pod setup
-flutter build ios --release
-```
-
-#### **Web Setup**
-```bash
-flutter create . --platforms web
+# Web build
 flutter build web --release
 ```
 
-## 📱 **Usage Guide**
+## 📦 Dependencies
 
-### **Getting Started**
-1. **Login**: Use the simple login screen to access the app
-2. **Add Child**: Register new children with basic information
-3. **Screening**: Perform malnutrition screening using:
-   - Manual measurements (height, weight, age)
-   - AI-powered MUAC measurement via camera
-   - Photo-based height/weight estimation
-4. **Analytics**: View growth trends and nutrition status
-5. **Export**: Generate Excel reports for zone management
+### Core Dependencies
+```yaml
+# State Management
+flutter_riverpod: ^2.4.9
+riverpod_annotation: ^2.3.3
 
-### **Data Management**
-- **Offline Storage**: All data stored locally in Hive database
-- **Sync**: Automatic sync when internet is available
-- **Backup**: Export to Excel for data backup
-- **Import**: Bulk import child data from Excel files
+# Storage
+hive: ^2.2.3
+hive_flutter: ^1.1.0
+path_provider: ^2.1.1
 
-## 🧪 **Testing**
+# ML & Camera
+tflite_flutter: ^0.10.4
+camera: ^0.10.5+5
+image_picker: ^1.0.4
 
-### **Running Tests**
+# UI & Localization
+flutter_localizations:
+  sdk: flutter
+intl: any
+cupertino_icons: ^1.0.6
+
+# Utilities
+shared_preferences: ^2.2.2
+connectivity_plus: ^5.0.1
+excel: ^2.1.0
+file_picker: ^6.1.1
+```
+
+## 🧪 Testing
+
+### Test Structure
 ```bash
 # Unit tests
-flutter test
+flutter test test/unit/
 
 # Widget tests
-flutter test test/widget_test.dart
+flutter test test/widget/
 
 # Integration tests
 flutter test integration_test/
+
+# All tests
+flutter test
 ```
 
-### **Test Data**
-- **Sample Images**: Located in `test_data/images/`
-- **Test Scenarios**: Configured in `test_data/test_scenarios.json`
-- **ML Models**: Placeholder models in `assets/ml_models/`
+### Test Coverage
+- **Unit Tests**: Core business logic, data models, services
+- **Widget Tests**: UI components, user interactions
+- **Integration Tests**: End-to-end workflows, device compatibility
+- **Device Testing**: Samsung-specific testing matrix
 
-## 🔄 **Model Management**
+## 🚀 Deployment
 
-### **ML Model Structure**
+### Distribution Channels
+1. **Google Play Store**: Production and enterprise tracks
+2. **Enterprise MDM**: Samsung Knox and Microsoft Intune
+3. **Direct APK**: Sideloading for controlled environments
+4. **Web Deployment**: Progressive Web App (PWA)
+
+### Release Process
+1. **Version Management**: Semantic versioning (MAJOR.MINOR.PATCH)
+2. **Build Signing**: Keystore management for Android
+3. **Testing**: Samsung device testing matrix
+4. **Rollout**: Staged rollout with monitoring
+
+## 📊 Project Structure
+
 ```
-assets/ml_models/
-├── arm_to_muac.tflite          # MUAC measurement model
-├── muac_detection.tflite        # MUAC detection model
-└── placeholder_models.txt       # Model documentation
+lib/
+├── main.dart                 # Application entry point
+├── models/                   # Data models
+│   ├── child.dart           # Child entity
+│   ├── screening.dart       # Screening records
+│   └── nutrition.dart       # Nutrition data
+├── screens/                  # UI screens
+│   ├── login/               # Authentication
+│   ├── children/            # Child management
+│   ├── screening/           # Screening flow
+│   └── analytics/           # Reports and charts
+├── services/                 # Business logic
+│   ├── ml_service.dart      # ML model management
+│   ├── sync_service.dart    # Data synchronization
+│   └── storage_service.dart # Local storage
+├── widgets/                  # Reusable components
+├── generated/                # Localization files
+└── utils/                    # Utilities and helpers
 ```
 
-### **Model Replacement**
-Use the provided script to update ML models:
+## 🔧 Configuration
+
+### Environment Variables
 ```bash
-./scripts/replace_ml_models.sh
+# Development
+flutter run --dart-define=ENV=development
+
+# Staging
+flutter run --dart-define=ENV=staging
+
+# Production
+flutter run --dart-define=ENV=production
 ```
 
-## 📊 **Development Workflow**
+### Build Flavors
+- **Development**: Debug mode with hot reload
+- **Staging**: Release mode with staging backend
+- **Production**: Release mode with production backend
 
-### **Code Generation**
+## 📈 Analytics & Monitoring
+
+### Built-in Analytics
+- **Usage Tracking**: Screen views, feature usage
+- **Performance**: Load times, memory usage
+- **Error Tracking**: Crash reports, exception handling
+- **Sync Metrics**: Data sync success rates
+
+### External Integration
+- **Firebase Analytics**: User behavior tracking
+- **Crashlytics**: Crash reporting and analysis
+- **Performance Monitoring**: App performance metrics
+
+## 🔐 Security
+
+### Data Protection
+- **Encryption**: AES-256 for sensitive data
+- **Secure Storage**: Android Keystore integration
+- **Network Security**: HTTPS/TLS for all communications
+- **Input Validation**: Sanitization of all user inputs
+
+### Privacy Compliance
+- **GDPR**: General Data Protection Regulation compliance
+- **COPPA**: Children's Online Privacy Protection Act
+- **HIPAA**: Healthcare data protection standards
+
+## 🆘 Troubleshooting
+
+### Common Issues
 ```bash
-# Generate Hive adapters
-flutter pub run build_runner build
+# Flutter doctor
+flutter doctor -v
 
-# Generate localization
-flutter gen-l10n
+# Clean build
+flutter clean
+flutter pub get
 
-# Generate Riverpod providers
-flutter pub run build_runner watch
+# Reset pods (iOS)
+cd ios && pod deintegrate && pod install
+
+# Clear Hive cache
+flutter clean && flutter pub get
 ```
 
-### **Building for Production**
-```bash
-# Android
-flutter build apk --release
-```
-
-## 📱 **Android & Samsung Device Testing Guide**
-
-### **Prerequisites for Android Testing**
-
-#### **Development Environment Setup**
-1. **Android Studio Installation**
-   - Install Android Studio (latest stable version)
-   - Install Android SDK Platform-Tools
-   - Configure SDK Manager with API levels 21-34
-
-2. **Device Setup**
-   ```bash
-   # Enable Developer Options on Samsung/Android device
-   Settings > About Phone > Software Information > Tap "Build Number" 7 times
-   Settings > Developer Options > Enable "USB Debugging"
-   Settings > Developer Options > Enable "Install via USB"
-   ```
-
-3. **Driver Installation**
-   - **Samsung**: Install Samsung Smart Switch or Samsung USB drivers
-   - **Generic Android**: Install Google USB drivers via SDK Manager
-   - **OnePlus**: Install OnePlus USB drivers
-   - **Xiaomi**: Install Mi PC Suite
-
-### **Device-Specific Testing Matrix**
-
-#### **Samsung Device Testing Priority**
-| Device Model | Android Version | Priority | Special Considerations |
-|--------------|-----------------|----------|------------------------|
-| Galaxy S24/S23 | Android 14 | High | Latest Samsung One UI |
-| Galaxy A54/A34 | Android 14 | High | Mid-range performance |
-| Galaxy Tab S9 | Android 14 | Medium | Tablet optimization |
-| Galaxy S21 | Android 13 | Medium | Legacy support |
-| Galaxy A14 | Android 13 | Low | Budget device testing |
-
-#### **Generic Android Testing**
-| Device Category | Android Version | Test Focus |
-|-----------------|-----------------|------------|
-| Google Pixel 7/8 | Android 14 | Stock Android behavior |
-| OnePlus 11/12 | Android 14 | OxygenOS compatibility |
-| Xiaomi 13/14 | Android 14 | MIUI optimization |
-| Budget devices (Android 11-12) | API 30-31 | Performance testing |
-
-### **Testing Procedures**
-
-#### **1. Initial Device Connection**
-```bash
-# Check device recognition
-adb devices
-# Should show: "device_id	device"
-
-# If unauthorized, accept RSA key prompt on device
-adb kill-server
-adb start-server
-adb devices
-```
-
-#### **2. Development Testing**
-```bash
-# Install debug APK
-flutter install
-
-# Run with hot reload
-flutter run --debug
-
-# Run with specific device
-flutter run -d device_id
-
-# Check device logs in real-time
-flutter logs
-```
-
-#### **3. Performance Testing**
-```bash
-# Profile mode testing
-flutter run --profile
-
-# Performance overlay
-flutter run --profile --trace-systrace
-
-# Memory profiling
-flutter run --profile --observatory-port=8888
-```
-
-#### **4. Release Testing**
-```bash
-# Build release APK
-flutter build apk --release
-
-# Install release APK
-flutter install --use-application-binary=build/app/outputs/flutter-apk/app-release.apk
-
-# Test release functionality
-adb shell am start -n com.example.cgm_app/.MainActivity
-```
-
-### **Samsung-Specific Testing Scenarios**
-
-#### **Camera & ML Testing**
-```bash
-# Test camera permissions
-adb shell pm grant com.example.cgm_app android.permission.CAMERA
-adb shell pm grant com.example.cgm_app android.permission.WRITE_EXTERNAL_STORAGE
-
-# Test ML model loading
-adb logcat | grep "tflite"
-adb logcat | grep "MLService"
-```
-
-#### **Storage & Permissions**
-```bash
-# Check storage permissions on Samsung
-adb shell dumpsys package com.example.cgm_app | grep permission
-
-# Test file picker on Samsung
-adb shell am start -a android.intent.action.GET_CONTENT -t "*/*"
-```
-
-#### **Samsung DeX Testing**
-```bash
-# Enable Samsung DeX mode
-Settings > Advanced Features > Samsung DeX > Enable
-
-# Test app behavior in DeX mode
-# Verify: UI scaling, mouse support, window resizing
-```
-
-### **Network & Sync Testing**
-
-#### **Offline Functionality**
-```bash
-# Test offline storage
-adb shell settings put global airplane_mode_on 1
-adb shell am broadcast -a android.intent.action.AIRPLANE_MODE
-
-# Verify local data persistence
-adb shell run-as com.example.cgm_app ls databases/
-```
-
-#### **Sync Testing**
-```bash
-# Test sync with network changes
-adb shell svc wifi enable
-adb shell svc wifi disable
-
-# Monitor sync logs
-adb logcat | grep "SyncService"
-```
-
-### **Device-Specific Issues & Solutions**
-
-#### **Samsung Issues**
-| Issue | Solution | Command |
-|-------|----------|---------|
-| Camera not opening | Check Samsung camera permissions | `adb shell pm grant com.example.cgm_app android.permission.CAMERA` |
-| Storage access denied | Enable Samsung My Files access | Settings > Apps > Special Access > All Files Access |
-| Background sync killed | Disable Samsung battery optimization | Settings > Battery > Background Limits |
-| ML models not loading | Check Samsung Knox restrictions | Settings > Biometrics & Security > Knox |
-
-#### **Generic Android Issues**
-| Issue | Solution | Command |
-|-------|----------|---------|
-| USB debugging not working | Revoke USB debugging authorizations | `adb devices` then re-authorize |
-| App not installing | Check unknown sources setting | Settings > Security > Unknown Sources |
-| Performance issues | Check device storage | `adb shell df -h` |
-
-### **Testing Checklist**
-
-#### **Pre-Testing Setup**
-- [ ] Device developer options enabled
-- [ ] USB debugging authorized
-- [ ] Samsung Smart Switch installed (for Samsung devices)
-- [ ] ADB drivers installed
-- [ ] Flutter doctor shows no issues
-
-#### **Functional Testing**
-- [ ] App installs successfully
-- [ ] Camera permission granted
-- [ ] Storage permission granted
-- [ ] Location permission granted
-- [ ] Child registration works
-- [ ] Photo capture works
-- [ ] ML measurements work
-- [ ] Offline storage works
-- [ ] Excel export works
-- [ ] Sync functionality works
-
-#### **Performance Testing**
-- [ ] App launches within 3 seconds
-- [ ] Camera opens within 2 seconds
-- [ ] ML processing completes within 5 seconds
-- [ ] No memory leaks during 30-minute usage
-- [ ] Battery usage < 5% per hour
-
-#### **Samsung-Specific Testing**
-- [ ] Samsung DeX compatibility
-- [ ] Samsung Knox compliance
-- [ ] Samsung camera integration
-- [ ] Samsung file picker integration
-- [ ] Samsung battery optimization handling
-
-### **Automated Testing**
-
-#### **Integration Tests**
-```bash
-# Run integration tests on connected device
-flutter test integration_test/ --device-id=device_id
-
-# Run specific test scenarios
-flutter test integration_test/app_test.dart --device-id=device_id
-```
-
-#### **Device Farm Testing**
-```bash
-# Firebase Test Lab (recommended for Samsung devices)
-gcloud firebase test android run \
-  --type instrumentation \
-  --app build/app/outputs/apk/debug/app-debug.apk \
-  --device model=starqlteue,version=29,locale=en,orientation=portrait \
-  --timeout 30m
-
-# AWS Device Farm
-aws devicefarm create-upload --project-arn project_arn --name app-debug.apk --type ANDROID_APP
-```
-
-### **Troubleshooting Quick Reference**
-
-#### **Common ADB Commands**
-```bash
-# Check connected devices
-adb devices
-
-# Install APK
-adb install -r build/app/outputs/apk/debug/app-debug.apk
-
-# Uninstall app
-adb uninstall com.example.cgm_app
-
-# Clear app data
-adb shell pm clear com.example.cgm_app
-
-# View logs
-adb logcat -v time | grep flutter
-```
-
-#### **Samsung-Specific Commands**
-```bash
-# Check Samsung Knox status
-adb shell getprop ro.boot.knox
-
-# Check Samsung camera features
-adb shell dumpsys media.camera | grep -i samsung
-
-# Check Samsung storage permissions
-adb shell dumpsys package com.example.cgm_app | grep -i storage
-```
-
-### **Testing Environment Variables**
-```bash
-# Set testing environment
-export FLUTTER_TEST_DEVICE="SM-G991B"  # Samsung Galaxy S21
-export ANDROID_HOME="/Users/[user]/Library/Android/sdk"
-export PATH="$PATH:$ANDROID_HOME/platform-tools"
-```flutter build appbundle --release
-
-# iOS
-flutter build ios --release
-
-# Web
-flutter build web --release
-```
-
-## 🔧 **Configuration**
-
-### **Environment Variables**
-Create a `.env` file for configuration:
-```env
-API_BASE_URL=https://your-api-endpoint.com
-SYNC_INTERVAL=300
-MAX_OFFLINE_RECORDS=1000
-```
-
-### **Hive Configuration**
-```dart
-// Database encryption
-Hive.initFlutter();
-Hive.registerAdapter(ChildAdapter());
-Hive.registerAdapter(ScreeningAdapter());
-```
-
-## 📈 **Performance Optimization**
-
-### **Database Optimization**
-- **Lazy Loading**: Implement pagination for large datasets
-- **Indexing**: Add indexes for frequently queried fields
-- **Compression**: Use Hive's built-in compression for large data
-
-### **ML Model Optimization**
-- **Model Quantization**: Use quantized TFLite models
-- **Caching**: Cache ML predictions for repeated inputs
-- **Background Processing**: Run ML tasks in isolates
-
-## 🌐 **Deployment**
-
-### **Web Deployment**
-```bash
-flutter build web --release
-# Deploy build/web/ to your web server
-```
-
-### **Mobile Deployment**
-- **Google Play Store**: Upload AAB file
-- **Apple App Store**: Upload IPA file via Xcode
-- **Enterprise Distribution**: Use MDM solutions
-
-## 🤝 **Contributing**
-
-### **Development Setup**
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new features
-5. Submit a pull request
-
-### **Code Style**
-- Follow Flutter best practices
-- Use `flutter_lints` for code analysis
-- Document public APIs
-- Write unit tests for business logic
-
-## 📞 **Support & Issues**
-
-### **Getting Help**
-- **Documentation**: Check the `/docs` folder
-- **Issues**: Report bugs on GitHub Issues
-- **Discussions**: Use GitHub Discussions for questions
-
-### **Known Issues**
-- **ML Models**: Ensure proper model files are in `assets/ml_models/`
-- **Permissions**: Grant camera/storage permissions on mobile devices
-- **Offline Sync**: Check network connectivity for sync issues
-
-## 📄 **License**
+### Device-Specific Issues
+- **Samsung Camera**: Check camera permissions
+- **Storage**: Ensure sufficient storage space
+- **Network**: Verify connectivity for sync
+
+## 📚 Documentation
+
+### API Documentation
+- **Dart Doc**: Generated documentation
+- **Code Comments**: Comprehensive inline documentation
+- **Architecture**: Detailed technical specifications
+
+### User Guides
+- **Field Worker Guide**: Step-by-step usage instructions
+- **Admin Guide**: Setup and configuration
+- **Troubleshooting**: Common issues and solutions
+
+## 🤝 Contributing
+
+### Development Workflow
+1. **Fork** the repository
+2. **Create** feature branch (`git checkout -b feature/amazing-feature`)
+3. **Commit** changes (`git commit -m 'Add amazing feature'`)
+4. **Push** to branch (`git push origin feature/amazing-feature`)
+5. **Open** Pull Request
+
+### Code Standards
+- **Dart Style Guide**: Follow official Dart conventions
+- **Linting**: Enforced via `analysis_options.yaml`
+- **Testing**: Required for all new features
+- **Documentation**: Required for public APIs
+
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 **Acknowledgments**
+## 🆘 Support
 
-- **WHO**: For child growth standards and guidelines
-- **Flutter Community**: For excellent packages and tools
-- **TensorFlow Lite**: For mobile ML capabilities
-- **Hive Team**: For fast local database solution
+### Getting Help
+- **Issues**: [GitHub Issues](https://github.com/satishskid/cgmflutter/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/satishskid/cgmflutter/discussions)
+- **Documentation**: [Wiki](https://github.com/satishskid/cgmflutter/wiki)
 
-## 📊 **Project Statistics**
-
-- **Flutter Version**: 3.35.3
-- **Dart Version**: 3.9.2
-- **Supported Platforms**: Android, iOS, Web, macOS
-- **Minimum Android**: API 21 (Android 5.0)
-- **Minimum iOS**: iOS 11.0
-- **Languages**: English, French (expandable)
+### Contact
+- **Project Maintainer**: [satishskid](https://github.com/satishskid)
+- **Email**: Available via GitHub profile
 
 ---
 
-**Built with ❤️ for healthcare workers worldwide**
+**Built for healthcare professionals, by healthcare technology experts** 🏥✨
+
+---
+
+*Last updated: January 2025*
