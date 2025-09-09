@@ -198,7 +198,272 @@ flutter pub run build_runner watch
 ```bash
 # Android
 flutter build apk --release
-flutter build appbundle --release
+```
+
+## 📱 **Android & Samsung Device Testing Guide**
+
+### **Prerequisites for Android Testing**
+
+#### **Development Environment Setup**
+1. **Android Studio Installation**
+   - Install Android Studio (latest stable version)
+   - Install Android SDK Platform-Tools
+   - Configure SDK Manager with API levels 21-34
+
+2. **Device Setup**
+   ```bash
+   # Enable Developer Options on Samsung/Android device
+   Settings > About Phone > Software Information > Tap "Build Number" 7 times
+   Settings > Developer Options > Enable "USB Debugging"
+   Settings > Developer Options > Enable "Install via USB"
+   ```
+
+3. **Driver Installation**
+   - **Samsung**: Install Samsung Smart Switch or Samsung USB drivers
+   - **Generic Android**: Install Google USB drivers via SDK Manager
+   - **OnePlus**: Install OnePlus USB drivers
+   - **Xiaomi**: Install Mi PC Suite
+
+### **Device-Specific Testing Matrix**
+
+#### **Samsung Device Testing Priority**
+| Device Model | Android Version | Priority | Special Considerations |
+|--------------|-----------------|----------|------------------------|
+| Galaxy S24/S23 | Android 14 | High | Latest Samsung One UI |
+| Galaxy A54/A34 | Android 14 | High | Mid-range performance |
+| Galaxy Tab S9 | Android 14 | Medium | Tablet optimization |
+| Galaxy S21 | Android 13 | Medium | Legacy support |
+| Galaxy A14 | Android 13 | Low | Budget device testing |
+
+#### **Generic Android Testing**
+| Device Category | Android Version | Test Focus |
+|-----------------|-----------------|------------|
+| Google Pixel 7/8 | Android 14 | Stock Android behavior |
+| OnePlus 11/12 | Android 14 | OxygenOS compatibility |
+| Xiaomi 13/14 | Android 14 | MIUI optimization |
+| Budget devices (Android 11-12) | API 30-31 | Performance testing |
+
+### **Testing Procedures**
+
+#### **1. Initial Device Connection**
+```bash
+# Check device recognition
+adb devices
+# Should show: "device_id	device"
+
+# If unauthorized, accept RSA key prompt on device
+adb kill-server
+adb start-server
+adb devices
+```
+
+#### **2. Development Testing**
+```bash
+# Install debug APK
+flutter install
+
+# Run with hot reload
+flutter run --debug
+
+# Run with specific device
+flutter run -d device_id
+
+# Check device logs in real-time
+flutter logs
+```
+
+#### **3. Performance Testing**
+```bash
+# Profile mode testing
+flutter run --profile
+
+# Performance overlay
+flutter run --profile --trace-systrace
+
+# Memory profiling
+flutter run --profile --observatory-port=8888
+```
+
+#### **4. Release Testing**
+```bash
+# Build release APK
+flutter build apk --release
+
+# Install release APK
+flutter install --use-application-binary=build/app/outputs/flutter-apk/app-release.apk
+
+# Test release functionality
+adb shell am start -n com.example.cgm_app/.MainActivity
+```
+
+### **Samsung-Specific Testing Scenarios**
+
+#### **Camera & ML Testing**
+```bash
+# Test camera permissions
+adb shell pm grant com.example.cgm_app android.permission.CAMERA
+adb shell pm grant com.example.cgm_app android.permission.WRITE_EXTERNAL_STORAGE
+
+# Test ML model loading
+adb logcat | grep "tflite"
+adb logcat | grep "MLService"
+```
+
+#### **Storage & Permissions**
+```bash
+# Check storage permissions on Samsung
+adb shell dumpsys package com.example.cgm_app | grep permission
+
+# Test file picker on Samsung
+adb shell am start -a android.intent.action.GET_CONTENT -t "*/*"
+```
+
+#### **Samsung DeX Testing**
+```bash
+# Enable Samsung DeX mode
+Settings > Advanced Features > Samsung DeX > Enable
+
+# Test app behavior in DeX mode
+# Verify: UI scaling, mouse support, window resizing
+```
+
+### **Network & Sync Testing**
+
+#### **Offline Functionality**
+```bash
+# Test offline storage
+adb shell settings put global airplane_mode_on 1
+adb shell am broadcast -a android.intent.action.AIRPLANE_MODE
+
+# Verify local data persistence
+adb shell run-as com.example.cgm_app ls databases/
+```
+
+#### **Sync Testing**
+```bash
+# Test sync with network changes
+adb shell svc wifi enable
+adb shell svc wifi disable
+
+# Monitor sync logs
+adb logcat | grep "SyncService"
+```
+
+### **Device-Specific Issues & Solutions**
+
+#### **Samsung Issues**
+| Issue | Solution | Command |
+|-------|----------|---------|
+| Camera not opening | Check Samsung camera permissions | `adb shell pm grant com.example.cgm_app android.permission.CAMERA` |
+| Storage access denied | Enable Samsung My Files access | Settings > Apps > Special Access > All Files Access |
+| Background sync killed | Disable Samsung battery optimization | Settings > Battery > Background Limits |
+| ML models not loading | Check Samsung Knox restrictions | Settings > Biometrics & Security > Knox |
+
+#### **Generic Android Issues**
+| Issue | Solution | Command |
+|-------|----------|---------|
+| USB debugging not working | Revoke USB debugging authorizations | `adb devices` then re-authorize |
+| App not installing | Check unknown sources setting | Settings > Security > Unknown Sources |
+| Performance issues | Check device storage | `adb shell df -h` |
+
+### **Testing Checklist**
+
+#### **Pre-Testing Setup**
+- [ ] Device developer options enabled
+- [ ] USB debugging authorized
+- [ ] Samsung Smart Switch installed (for Samsung devices)
+- [ ] ADB drivers installed
+- [ ] Flutter doctor shows no issues
+
+#### **Functional Testing**
+- [ ] App installs successfully
+- [ ] Camera permission granted
+- [ ] Storage permission granted
+- [ ] Location permission granted
+- [ ] Child registration works
+- [ ] Photo capture works
+- [ ] ML measurements work
+- [ ] Offline storage works
+- [ ] Excel export works
+- [ ] Sync functionality works
+
+#### **Performance Testing**
+- [ ] App launches within 3 seconds
+- [ ] Camera opens within 2 seconds
+- [ ] ML processing completes within 5 seconds
+- [ ] No memory leaks during 30-minute usage
+- [ ] Battery usage < 5% per hour
+
+#### **Samsung-Specific Testing**
+- [ ] Samsung DeX compatibility
+- [ ] Samsung Knox compliance
+- [ ] Samsung camera integration
+- [ ] Samsung file picker integration
+- [ ] Samsung battery optimization handling
+
+### **Automated Testing**
+
+#### **Integration Tests**
+```bash
+# Run integration tests on connected device
+flutter test integration_test/ --device-id=device_id
+
+# Run specific test scenarios
+flutter test integration_test/app_test.dart --device-id=device_id
+```
+
+#### **Device Farm Testing**
+```bash
+# Firebase Test Lab (recommended for Samsung devices)
+gcloud firebase test android run \
+  --type instrumentation \
+  --app build/app/outputs/apk/debug/app-debug.apk \
+  --device model=starqlteue,version=29,locale=en,orientation=portrait \
+  --timeout 30m
+
+# AWS Device Farm
+aws devicefarm create-upload --project-arn project_arn --name app-debug.apk --type ANDROID_APP
+```
+
+### **Troubleshooting Quick Reference**
+
+#### **Common ADB Commands**
+```bash
+# Check connected devices
+adb devices
+
+# Install APK
+adb install -r build/app/outputs/apk/debug/app-debug.apk
+
+# Uninstall app
+adb uninstall com.example.cgm_app
+
+# Clear app data
+adb shell pm clear com.example.cgm_app
+
+# View logs
+adb logcat -v time | grep flutter
+```
+
+#### **Samsung-Specific Commands**
+```bash
+# Check Samsung Knox status
+adb shell getprop ro.boot.knox
+
+# Check Samsung camera features
+adb shell dumpsys media.camera | grep -i samsung
+
+# Check Samsung storage permissions
+adb shell dumpsys package com.example.cgm_app | grep -i storage
+```
+
+### **Testing Environment Variables**
+```bash
+# Set testing environment
+export FLUTTER_TEST_DEVICE="SM-G991B"  # Samsung Galaxy S21
+export ANDROID_HOME="/Users/[user]/Library/Android/sdk"
+export PATH="$PATH:$ANDROID_HOME/platform-tools"
+```flutter build appbundle --release
 
 # iOS
 flutter build ios --release
