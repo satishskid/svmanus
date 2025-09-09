@@ -1,22 +1,22 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import '../models/child.dart';
 import '../models/diet_record.dart';
 import '../providers/diet_provider.dart';
 
-class DietCaptureScreen extends StatefulWidget {
+class DietCaptureScreen extends ConsumerStatefulWidget {
   final Child child;
   
-  const DietCaptureScreen({Key? key, required this.child}) : super(key: key);
+  const DietCaptureScreen({super.key, required this.child});
 
   @override
-  _DietCaptureScreenState createState() => _DietCaptureScreenState();
+  ConsumerState<DietCaptureScreen> createState() => _DietCaptureScreenState();
 }
 
-class _DietCaptureScreenState extends State<DietCaptureScreen> {
+class _DietCaptureScreenState extends ConsumerState<DietCaptureScreen> {
   final _formKey = GlobalKey<FormState>();
   final _notesController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
@@ -157,8 +157,6 @@ class _DietCaptureScreenState extends State<DietCaptureScreen> {
       return;
     }
 
-    final dietProvider = Provider.of<DietProvider>(context, listen: false);
-    
     final dietRecord = DietRecord(
       id: const Uuid().v4(),
       childId: widget.child.id,
@@ -193,7 +191,7 @@ class _DietCaptureScreenState extends State<DietCaptureScreen> {
       updatedAt: DateTime.now(),
     );
 
-    await dietProvider.addDietRecord(dietRecord);
+    ref.read(dietProvider.notifier).addDietRecord(dietRecord);
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Diet record saved successfully')),

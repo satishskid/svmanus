@@ -25,7 +25,6 @@ void main() async {
   Hive.registerAdapter(ScreeningAdapter());
   Hive.registerAdapter(WorkerAdapter());
   Hive.registerAdapter(DietRecordAdapter());
-  Hive.registerAdapter(FoodItemAdapter());
   
   await Hive.openBox<Child>('children');
   await Hive.openBox<Screening>('screenings');
