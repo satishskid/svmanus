@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#ec4899">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="She&Her">
+  <meta name="msapplication-TileColor" content="#ec4899">
+  <meta name="msapplication-config" content="/browserconfig.xml">
+
+  <!-- PWA Icons and Manifest -->
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="/icon-192x192.png">
+
+  <title>She&Her - AI Healthcare Companion</title>
+
+  <!-- Description and Keywords -->
+  <meta name="description" content="AI-powered women's healthcare consultations and expert guidance. Get instant medical advice and connect with healthcare providers.">
+  <meta name="keywords" content="women's health, healthcare, AI consultation, medical advice, telemedicine, health app">
+  <meta name="author" content="She&Her">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://sheandher.app/">
+  <meta property="og:title" content="She&Her - AI Healthcare Companion">
+  <meta property="og:description" content="AI-powered women's healthcare consultations and expert guidance">
+  <meta property="og:image" content="https://sheandher.app/og-image.png">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://sheandher.app/">
+  <meta property="twitter:title" content="She&Her - AI Healthcare Companion">
+  <meta property="twitter:description" content="AI-powered women's healthcare consultations and expert guidance">
+  <meta property="twitter:image" content="https://sheandher.app/twitter-image.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Ensure text is always visible */
+    * {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #d1c4e9;
+      border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #b39ddb;
+    }
+
+    /* PWA Loading Screen */
+    .pwa-loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      color: white;
+    }
+
+    .pwa-loading.hidden {
+      display: none;
+    }
+
+    .pwa-loading .logo {
+      width: 80px;
+      height: 80px;
+      background: white;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      margin-bottom: 20px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+  </style>
+
+  <link rel="stylesheet" href="/index.css">
+</head>
+<body class="bg-gradient-to-br from-pink-100 via-purple-100 to-indigo-100 min-h-screen">
+  <!-- PWA Loading Screen -->
+  <div id="pwa-loading" class="pwa-loading">
+    <div class="logo">🤖</div>
+    <h2>She&Her</h2>
+    <p>Loading your AI healthcare companion...</p>
+  </div>
+
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+
+  <!-- PWA Service Worker Registration -->
+  <script>
+    // Register Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('SW registered: ', registration);
+
+            // Check for updates
+            registration.addEventListener('updatefound', () => {
+              const newWorker = registration.installing;
+              if (newWorker) {
+                newWorker.addEventListener('statechange', () => {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    // New version available
+                    if (confirm('New version available! Click OK to refresh and use the latest version.')) {
+                      window.location.reload();
+                    }
+                  }
+                });
+              }
+            });
+          })
+          .catch((registrationError) => {
+            console.log('SW registration failed: ', registrationError);
+          });
+      });
+    }
+
+    // Hide loading screen when app is ready
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const loading = document.getElementById('pwa-loading');
+        if (loading) {
+          loading.classList.add('hidden');
+        }
+      }, 1000);
+    });
+
+    // PWA Install Prompt
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+
+      // Show install button or banner
+      showInstallPrompt();
+    });
+
+    function showInstallPrompt() {
+      // Create install button if it doesn't exist
+      if (!document.getElementById('pwa-install-btn')) {
+        const installBtn = document.createElement('button');
+        installBtn.id = 'pwa-install-btn';
+        installBtn.innerHTML = '📱 Install App';
+        installBtn.className = 'fixed bottom-4 right-4 z-50 bg-pink-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-pink-600 transition-colors';
+        installBtn.style.display = 'none';
+
+        installBtn.addEventListener('click', () => {
+          if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+              if (choiceResult.outcome === 'accepted') {
+                console.log('User accepted the install prompt');
+              }
+              deferredPrompt = null;
+              installBtn.style.display = 'none';
+            });
+          }
+        });
+
+        document.body.appendChild(installBtn);
+      }
+
+      // Show install button after 30 seconds
+      setTimeout(() => {
+        const installBtn = document.getElementById('pwa-install-btn');
+        if (installBtn && !window.matchMedia('(display-mode: standalone)').matches) {
+          installBtn.style.display = 'block';
+        }
+      }, 30000);
+    }
+
+    // Handle PWA install success
+    window.addEventListener('appinstalled', (evt) => {
+      console.log('App installed successfully');
+      const installBtn = document.getElementById('pwa-install-btn');
+      if (installBtn) {
+        installBtn.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>
