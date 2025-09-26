@@ -1,3 +1,4 @@
+# Netlify Configuration for She&Her Healthcare Platform
 [build]
   command = "npm run build"
   publish = "dist"
@@ -38,14 +39,13 @@
   [headers.values]
     Cache-Control = "no-cache"
 
-# Environment variables (add your actual values in Netlify dashboard)
+# Environment variables for production
 [context.production.environment]
-  VITE_CONVEX_URL = "your-production-convex-url"
-  VITE_CLERK_PUBLISHABLE_KEY = "your-production-clerk-key"
+  VITE_CONVEX_URL = "https://clever-grouse-917.convex.cloud"
 
+# Environment variables for deploy previews
 [context.deploy-preview.environment]
-  VITE_CONVEX_URL = "your-staging-convex-url"
-  VITE_CLERK_PUBLISHABLE_KEY = "your-staging-clerk-key"
+  VITE_CONVEX_URL = "https://clever-grouse-917.convex.cloud"
 
 # Functions directory (if you add serverless functions later)
 [functions]
