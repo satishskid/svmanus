@@ -7,6 +7,8 @@ import ApiKeyModal from './components/ApiKeyModal';
 import { FullPageSpinner } from './components/LoadingSpinner';
 import { LoginForm, SignupForm } from './components/AuthForms';
 import { DemoSeeder } from './components/DemoSeeder';
+import { api } from 'convex/_generated/api';
+import { useQuery, useMutation } from 'convex/react';
 
 const App: React.FC = () => {
   const [showDemoSeeder, setShowDemoSeeder] = useState(false);
@@ -15,30 +17,68 @@ const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Use Convex authentication
+  const getCurrentUserProfile = useQuery(api.userProfiles.getCurrentUserProfile);
+  const signInWithPassword = useMutation(api.auth.signInWithPassword);
+  const signUpWithPassword = useMutation(api.auth.signUpWithPassword);
+  const createUserProfile = useMutation(api.userProfiles.createUserProfile);
+
   useEffect(() => {
-    // Check for demo authentication in localStorage
-    const demoAuth = localStorage.getItem('demo-auth');
-    if (demoAuth) {
-      const userData = JSON.parse(demoAuth);
-      setIsAuthenticated(true);
-      setCurrentUser({
-        _id: "demo-user",
-        _creationTime: Date.now(),
-        name: userData.name,
-        userId: userData.email,
-        role: "USER" as const,
-        corporatePlanId: undefined,
-        clerkId: "demo-clerk-id",
-      });
+    // Check authentication status
+    const checkAuth = async () => {
+      try {
+        const userProfile = getCurrentUserProfile;
+        if (userProfile) {
+          setIsAuthenticated(true);
+          setCurrentUser(userProfile);
+        }
+      } catch (error) {
+        console.log('Not authenticated');
+      }
+      setIsLoading(false);
+    };
+
+    checkAuth();
+  }, [getCurrentUserProfile]);
+
+  const handleSignIn = async (email: string, password: string) => {
+    try {
+      await signInWithPassword({ email, password });
+      // Reload to get updated auth state
+      window.location.reload();
+    } catch (error) {
+      console.error('Sign in failed:', error);
+      throw error;
     }
-    setIsLoading(false);
-  }, []);
+  };
+
+  const handleSignUp = async (email: string, password: string, name: string) => {
+    try {
+      await signUpWithPassword({ email, password });
+      await createUserProfile({ name });
+      // Reload to get updated auth state
+      window.location.reload();
+    } catch (error) {
+      console.error('Sign up failed:', error);
+      throw error;
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      // Clear local storage and reload
+      localStorage.removeItem('demo-auth');
+      window.location.reload();
+    } catch (error) {
+      console.error('Sign out failed:', error);
+    }
+  };
 
   if (isLoading) {
     return <FullPageSpinner />;
   }
 
-  // For now, let's use demo mode to bypass the authentication issues
+  // Demo mode for testing without database
   if (demoMode) {
     return (
       <>
@@ -51,13 +91,23 @@ const App: React.FC = () => {
   if (isAuthenticated && currentUser) {
     return (
       <>
-        <AuthenticatedApp currentUser={currentUser} />
+        <AuthenticatedApp
+          currentUser={currentUser}
+          onSignOut={handleSignOut}
+        />
         {showDemoSeeder && <DemoSeeder onClose={() => setShowDemoSeeder(false)} />}
       </>
     );
   }
 
-  return <UnauthenticatedApp onShowDemo={() => setShowDemoSeeder(true)} onEnableDemo={() => setDemoMode(true)} />;
+  return (
+    <UnauthenticatedApp
+      onShowDemo={() => setShowDemoSeeder(true)}
+      onEnableDemo={() => setDemoMode(true)}
+      onSignIn={handleSignIn}
+      onSignUp={handleSignUp}
+    />
+  );
 };
 
 // Demo app component for testing without database
@@ -74,11 +124,17 @@ const DemoApp: React.FC = () => {
     clerkId: "demo-clerk-id",
   };
 
+  const handleSignOut = async () => {
+    localStorage.removeItem('demo-auth');
+    window.location.reload();
+  };
+
   return (
     <>
       <MainAppView
         currentUser={demoUser}
         onOpenApiKeyModal={() => setIsApiKeyModalOpen(true)}
+        onSignOut={handleSignOut}
       />
       <ApiKeyModal isOpen={isApiKeyModalOpen} onClose={() => setIsApiKeyModalOpen(false)} />
     </>
@@ -88,9 +144,11 @@ const DemoApp: React.FC = () => {
 interface UnauthenticatedAppProps {
   onShowDemo: () => void;
   onEnableDemo: () => void;
+  onSignIn: (email: string, password: string) => Promise<void>;
+  onSignUp: (email: string, password: string, name: string) => Promise<void>;
 }
 
-const UnauthenticatedApp: React.FC<UnauthenticatedAppProps> = ({ onShowDemo, onEnableDemo }) => {
+const UnauthenticatedApp: React.FC<UnauthenticatedAppProps> = ({ onShowDemo, onEnableDemo, onSignIn, onSignUp }) => {
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
 
   return (
@@ -113,12 +171,12 @@ const UnauthenticatedApp: React.FC<UnauthenticatedAppProps> = ({ onShowDemo, onE
       {authMode === 'login' ? (
         <LoginForm
           onToggleMode={() => setAuthMode('signup')}
-          onSuccess={() => window.location.reload()}
+          onSuccess={(email: string, password: string) => onSignIn(email, password)}
         />
       ) : (
         <SignupForm
           onToggleMode={() => setAuthMode('login')}
-          onSuccess={() => window.location.reload()}
+          onSuccess={(email: string, password: string, name: string) => onSignUp(email, password, name)}
         />
       )}
     </div>
@@ -127,9 +185,10 @@ const UnauthenticatedApp: React.FC<UnauthenticatedAppProps> = ({ onShowDemo, onE
 
 interface AuthenticatedAppProps {
   currentUser: any;
+  onSignOut: () => Promise<void>;
 }
 
-const AuthenticatedApp: React.FC<AuthenticatedAppProps> = ({ currentUser }) => {
+const AuthenticatedApp: React.FC<AuthenticatedAppProps> = ({ currentUser, onSignOut }) => {
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
 
   return (
@@ -137,6 +196,7 @@ const AuthenticatedApp: React.FC<AuthenticatedAppProps> = ({ currentUser }) => {
       <MainAppView
         currentUser={currentUser}
         onOpenApiKeyModal={() => setIsApiKeyModalOpen(true)}
+        onSignOut={onSignOut}
       />
       <ApiKeyModal isOpen={isApiKeyModalOpen} onClose={() => setIsApiKeyModalOpen(false)} />
     </>

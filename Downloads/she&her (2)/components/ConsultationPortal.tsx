@@ -3,6 +3,8 @@ import { User, Consultation } from '../types';
 import ConsultationList from './ConsultationList';
 import ConsultationChat from './ConsultationChat';
 import CreateConsultation from './CreateConsultation';
+import { useMutation } from 'convex/react';
+import { api } from 'convex/_generated/api';
 
 interface ConsultationPortalProps {
   currentUser: User;
@@ -13,6 +15,8 @@ type ViewState = 'list' | 'create' | 'chat';
 const ConsultationPortal: React.FC<ConsultationPortalProps> = ({ currentUser }) => {
   const [currentView, setCurrentView] = useState<ViewState>('list');
   const [selectedConsultation, setSelectedConsultation] = useState<Consultation | null>(null);
+
+  const sendConsultationMessage = useMutation(api.consultations.sendConsultationMessage);
 
   const handleCreateConsultation = (title: string, category: string, priority: string, symptoms: string) => {
     // In a real app, this would call the Convex mutation
@@ -45,27 +49,40 @@ const ConsultationPortal: React.FC<ConsultationPortalProps> = ({ currentUser }) 
   const handleSendMessage = async (content: string, messageType: string) => {
     if (!selectedConsultation) return;
 
-    // In a real app, this would call the Convex mutation
-    console.log('Sending message:', { consultationId: selectedConsultation._id, content, messageType });
+    try {
+      // Get user's API key from localStorage
+      const userApiKey = localStorage.getItem('gemini_api_key');
 
-    // Mock message sending
-    const newMessage = {
-      _id: `message-${Date.now()}`,
-      consultationId: selectedConsultation._id,
-      authorId: currentUser._id as any,
-      authorRole: 'USER' as const,
-      messageType: messageType as any,
-      content,
-      isAiGenerated: false,
-      created_at: Date.now(),
-    };
+      // Call the actual Convex mutation
+      await sendConsultationMessage({
+        consultationId: selectedConsultation._id as any,
+        messageType: messageType as any,
+        content,
+        userApiKey: userApiKey || undefined,
+      });
 
-    // Update selected consultation with new message
-    setSelectedConsultation({
-      ...selectedConsultation,
-      messages: [...(selectedConsultation.messages || []), newMessage],
-      updated_at: Date.now(),
-    });
+      console.log('Message sent successfully');
+    } catch (error) {
+      console.error('Error sending message:', error);
+      // Fallback to mock behavior for demo
+      const newMessage = {
+        _id: `message-${Date.now()}`,
+        consultationId: selectedConsultation._id,
+        authorId: currentUser._id as any,
+        authorRole: 'USER' as const,
+        messageType: messageType as any,
+        content,
+        isAiGenerated: false,
+        created_at: Date.now(),
+      };
+
+      // Update selected consultation with new message
+      setSelectedConsultation({
+        ...selectedConsultation,
+        messages: [...(selectedConsultation.messages || []), newMessage],
+        updated_at: Date.now(),
+      });
+    }
   };
 
   const handleCloseConsultation = () => {

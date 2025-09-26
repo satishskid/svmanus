@@ -3,7 +3,7 @@ import { SheHerLogo } from './Icons';
 
 interface AuthFormProps {
   onToggleMode: () => void;
-  onSuccess: () => void;
+  onSuccess: (email: string, password: string, name?: string) => void;
 }
 
 export const LoginForm: React.FC<AuthFormProps> = ({ onToggleMode, onSuccess }) => {
@@ -22,21 +22,10 @@ export const LoginForm: React.FC<AuthFormProps> = ({ onToggleMode, onSuccess }) 
     setIsLoading(true);
     setError('');
 
-    // Demo mode - accept any email/password combination
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Store user session in localStorage for demo
-      localStorage.setItem('demo-auth', JSON.stringify({
-        email,
-        name: email.split('@')[0],
-        authenticated: true
-      }));
-
-      onSuccess();
+      onSuccess(email, password);
     } catch (err: any) {
-      setError('Demo login failed. Please try again.');
+      setError('Authentication failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -132,21 +121,10 @@ export const SignupForm: React.FC<AuthFormProps> = ({ onToggleMode, onSuccess })
     setIsLoading(true);
     setError('');
 
-    // Demo mode - create account locally
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Store user session in localStorage for demo
-      localStorage.setItem('demo-auth', JSON.stringify({
-        email,
-        name,
-        authenticated: true
-      }));
-
-      onSuccess();
+      onSuccess(email, password, name);
     } catch (err: any) {
-      setError('Demo signup failed. Please try again.');
+      setError('Account creation failed. Please try again.');
     } finally {
       setIsLoading(false);
     }

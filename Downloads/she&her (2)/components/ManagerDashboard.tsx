@@ -2,9 +2,11 @@
 import React, { useState } from 'react';
 import { Service, Provider, CorporatePlan, ProductKnowledge } from '../types';
 import { ESCALATION_MATRIX_DATA, GUIDING_PRINCIPLES_DATA, SERVICES_DATA, PROVIDERS_DATA, CORPORATE_PLANS_DATA, PRODUCT_KNOWLEDGE_DATA } from '../constants';
+import UserManagement from './UserManagement';
 
 const ManagerDashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'services' | 'products' | 'providers' | 'plans' | 'oversight'>('services');
+  const [activeTab, setActiveTab] = useState<'services' | 'products' | 'providers' | 'plans' | 'oversight' | 'users'>('services');
+  const [showUserManagement, setShowUserManagement] = useState(false);
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -75,6 +77,28 @@ const ManagerDashboard: React.FC = () => {
                 </div>
             </div>
         );
+      case 'users':
+        return showUserManagement ? (
+          <UserManagement onClose={() => setShowUserManagement(false)} />
+        ) : (
+          <div className="text-center py-12">
+            <div className="bg-white rounded-lg shadow p-8">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-gray-800 mb-2">User Management</h3>
+              <p className="text-gray-600 mb-6">Create and manage user accounts, roles, and permissions</p>
+              <button
+                onClick={() => setShowUserManagement(true)}
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors"
+              >
+                Open User Management
+              </button>
+            </div>
+          </div>
+        );
       case 'oversight':
         return (
           <div className="space-y-6">
@@ -113,6 +137,7 @@ const ManagerDashboard: React.FC = () => {
           <TabButton tabId="products">Products</TabButton>
           <TabButton tabId="providers">Providers</TabButton>
           <TabButton tabId="plans">Corporate Plans</TabButton>
+          <TabButton tabId="users">Users</TabButton>
           <TabButton tabId="oversight">Oversight</TabButton>
         </nav>
       </div>

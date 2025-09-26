@@ -17,7 +17,10 @@ import type * as _data from "../_data.js";
 import type * as appointments from "../appointments.js";
 import type * as auth from "../auth.js";
 import type * as consultationMessages from "../consultationMessages.js";
+import type * as consultations from "../consultations.js";
+import type * as contracts from "../contracts.js";
 import type * as demoData from "../demoData.js";
+import type * as providers from "../providers.js";
 import type * as userProfiles from "../userProfiles.js";
 import type * as users from "../users.js";
 
@@ -34,7 +37,10 @@ declare const fullApi: ApiFromModules<{
   appointments: typeof appointments;
   auth: typeof auth;
   consultationMessages: typeof consultationMessages;
+  consultations: typeof consultations;
+  contracts: typeof contracts;
   demoData: typeof demoData;
+  providers: typeof providers;
   userProfiles: typeof userProfiles;
   users: typeof users;
 }>;

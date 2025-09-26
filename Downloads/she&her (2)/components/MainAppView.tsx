@@ -39,9 +39,10 @@ import { FullPageSpinner } from './LoadingSpinner';
 interface MainAppViewProps {
   currentUser: User;
   onOpenApiKeyModal: () => void;
+  onSignOut: () => Promise<void>;
 }
 
-const MainAppView: React.FC<MainAppViewProps> = ({ currentUser, onOpenApiKeyModal }) => {
+const MainAppView: React.FC<MainAppViewProps> = ({ currentUser, onOpenApiKeyModal, onSignOut }) => {
   const [patientContext, setPatientContext] = useState<PatientContext>('SELF');
   const [providerSlots] = useState<ProviderSlot[]>(generateInitialProviderSlots());
 
@@ -88,11 +89,6 @@ const MainAppView: React.FC<MainAppViewProps> = ({ currentUser, onOpenApiKeyModa
 
   const allAppointments = mockAppointments;
 
-  const handleSignOut = () => {
-    // For demo mode, just reload the page
-    window.location.reload();
-  };
-
   const renderContent = () => {
     switch(displayRole) {
       case 'MANAGER':
@@ -104,14 +100,20 @@ const MainAppView: React.FC<MainAppViewProps> = ({ currentUser, onOpenApiKeyModa
         return <ProviderPortal appointments={allAppointments as Appointment[]} />;
       case 'USER':
       default:
-        // For demo purposes, show consultation portal for users
+        // Show the full user journey with stages and chatbot
         return (
           <div className="space-y-6">
             <div className="bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg p-6 text-white">
-              <h2 className="text-2xl font-bold mb-2">Welcome to AI Consultation</h2>
-              <p className="text-pink-100">Get instant AI-powered health consultations and expert guidance</p>
+              <h2 className="text-2xl font-bold mb-2">Welcome to Your Health Journey</h2>
+              <p className="text-pink-100">Explore life stages and get personalized AI guidance</p>
             </div>
-            <ConsultationPortal currentUser={currentUser} />
+            <UserJourney
+              currentUser={currentUser}
+              currentPlan={currentPlan}
+              providerSlots={providerSlots}
+              userAppointments={userAppointments}
+              patientContext={patientContext}
+            />
           </div>
         );
     }
@@ -126,7 +128,7 @@ const MainAppView: React.FC<MainAppViewProps> = ({ currentUser, onOpenApiKeyModa
         currentUser={currentUser}
         patientContext={patientContext}
         onPatientContextChange={setPatientContext}
-        onLogout={handleSignOut}
+        onLogout={onSignOut}
         onOpenApiKeyModal={onOpenApiKeyModal}
       />
       <main className="flex-grow container mx-auto p-4 md:p-6 lg:p-8">

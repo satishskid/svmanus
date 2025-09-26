@@ -108,6 +108,7 @@ export const sendConsultationMessage = mutation({
     messageType: v.union(v.literal("text"), v.literal("image"), v.literal("file"), v.literal("system")),
     content: v.string(),
     metadata: v.optional(v.any()),
+    userApiKey: v.optional(v.string()), // Add API key parameter
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -153,7 +154,9 @@ export const sendConsultationMessage = mutation({
 
     // If this is a user message, trigger AI response
     if (userProfile.role === "USER") {
-      await generateAiResponse(ctx, args.consultationId, args.content);
+      // Pass the API key to the AI response function
+      const aiCtx = { ...ctx, userApiKey: args.userApiKey };
+      await generateAiResponse(aiCtx, args.consultationId, args.content);
     }
 
     return messageId;
@@ -182,22 +185,56 @@ export const getConsultationMessages = query({
 // Generate AI analysis for consultation
 async function generateAiAnalysis(ctx: any, consultationId: string, symptoms: string) {
   try {
-    // Mock AI analysis - in real implementation, this would call an AI service
-    const aiAnalysis = {
-      summary: `AI analysis based on symptoms: ${symptoms}`,
-      riskLevel: symptoms.length > 50 ? "medium" : "low",
+    // Get user's API key from localStorage (passed via context)
+    const userApiKey = ctx.userApiKey;
+    const fallbackApiKey = process.env.GEMINI_API_KEY;
+
+    // Use user's key if available, otherwise use fallback
+    const apiKey = userApiKey || fallbackApiKey;
+
+    if (!apiKey) {
+      throw new Error("No Gemini API key available. Please provide your API key in settings.");
+    }
+
+    // Import Google Generative AI
+    const { GoogleGenerativeAI } = require('@google/generative-ai');
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+
+    const prompt = `You are a medical AI assistant. Analyze the following symptoms and provide a professional medical analysis:
+
+Symptoms: ${symptoms}
+
+Please provide:
+1. A brief summary of potential conditions
+2. Risk assessment (low/medium/high)
+3. Recommended actions
+4. Whether immediate medical attention is needed
+
+Respond in a professional, empathetic manner. Do not provide definitive diagnoses.`;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+
+    // Parse the response
+    const analysis = {
+      summary: text.substring(0, 500) + '...', // Truncate for display
+      riskLevel: text.toLowerCase().includes('high') ? 'high' :
+                 text.toLowerCase().includes('medium') ? 'medium' : 'low',
       recommendations: [
         "Monitor symptoms closely",
         "Schedule follow-up if symptoms persist",
         "Consider consulting with healthcare provider"
       ],
       confidence: 0.85,
+      fullAnalysis: text
     };
 
     await ctx.db.patch(consultationId, {
-      aiSummary: aiAnalysis.summary,
-      recommendations: aiAnalysis,
-      riskAssessment: { level: aiAnalysis.riskLevel, score: aiAnalysis.confidence },
+      aiSummary: analysis.summary,
+      recommendations: analysis,
+      riskAssessment: { level: analysis.riskLevel, score: analysis.confidence },
       updated_at: Date.now(),
     });
 
@@ -209,31 +246,85 @@ async function generateAiAnalysis(ctx: any, consultationId: string, symptoms: st
         authorId: consultation.userId, // Use user's ID for AI messages
         authorRole: "AI",
         messageType: "text",
-        content: `🤖 AI Analysis: ${aiAnalysis.summary}\n\nRisk Level: ${aiAnalysis.riskLevel.toUpperCase()}\nConfidence: ${(aiAnalysis.confidence * 100).toFixed(1)}%`,
-        metadata: aiAnalysis,
+        content: `🤖 AI Analysis: ${analysis.summary}\n\nRisk Level: ${analysis.riskLevel.toUpperCase()}\nConfidence: ${(analysis.confidence * 100).toFixed(1)}%\n\nFull Analysis: ${analysis.fullAnalysis}`,
+        metadata: analysis,
         isAiGenerated: true,
-        confidenceScore: aiAnalysis.confidence,
+        confidenceScore: analysis.confidence,
         created_at: Date.now(),
       });
     }
   } catch (error) {
     console.error("AI analysis failed:", error);
+    // Fallback to mock response if API fails
+    await generateMockAiAnalysis(ctx, consultationId, symptoms);
+  }
+}
+
+// Fallback function for when API is not available
+async function generateMockAiAnalysis(ctx: any, consultationId: string, symptoms: string) {
+  const aiAnalysis = {
+    summary: `AI analysis based on symptoms: ${symptoms}`,
+    riskLevel: symptoms.length > 50 ? "medium" : "low",
+    recommendations: [
+      "Monitor symptoms closely",
+      "Schedule follow-up if symptoms persist",
+      "Consider consulting with healthcare provider"
+    ],
+    confidence: 0.85,
+  };
+
+  await ctx.db.patch(consultationId, {
+    aiSummary: aiAnalysis.summary,
+    recommendations: aiAnalysis,
+    riskAssessment: { level: aiAnalysis.riskLevel, score: aiAnalysis.confidence },
+    updated_at: Date.now(),
+  });
+
+  // Create AI message with analysis
+  const consultation = await ctx.db.get(consultationId);
+  if (consultation) {
+    await ctx.db.insert("consultationMessages", {
+      consultationId,
+      authorId: consultation.userId, // Use user's ID for AI messages
+      authorRole: "AI",
+      messageType: "text",
+      content: `🤖 AI Analysis: ${aiAnalysis.summary}\n\nRisk Level: ${aiAnalysis.riskLevel.toUpperCase()}\nConfidence: ${(aiAnalysis.confidence * 100).toFixed(1)}%\n\nNote: Using fallback analysis mode. For better results, please provide your Gemini API key.",
+      metadata: aiAnalysis,
+      isAiGenerated: true,
+      confidenceScore: aiAnalysis.confidence,
+      created_at: Date.now(),
+    });
   }
 }
 
 // Generate AI response to user message
 async function generateAiResponse(ctx: any, consultationId: string, userMessage: string) {
   try {
-    // Mock AI response - in real implementation, this would call an AI service
-    const aiResponses = [
-      "I understand your concern. Can you tell me more about your symptoms?",
-      "Thank you for sharing that information. Let me analyze this for you.",
-      "Based on what you've described, I recommend monitoring your symptoms and consulting a healthcare provider if they worsen.",
-      "This sounds concerning. Would you like me to help you schedule an appointment with a specialist?",
-      "I can help you with that. Let me check our available providers and suggest the best match for your needs."
-    ];
+    // Get user's API key from localStorage (passed via context)
+    const userApiKey = ctx.userApiKey;
+    const fallbackApiKey = process.env.GEMINI_API_KEY;
 
-    const randomResponse = aiResponses[Math.floor(Math.random() * aiResponses.length)];
+    // Use user's key if available, otherwise use fallback
+    const apiKey = userApiKey || fallbackApiKey;
+
+    if (!apiKey) {
+      throw new Error("No Gemini API key available. Please provide your API key in settings.");
+    }
+
+    // Import Google Generative AI
+    const { GoogleGenerativeAI } = require('@google/generative-ai');
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+
+    const prompt = `You are a helpful medical AI assistant. Respond to this user message in a consultation:
+
+User: ${userMessage}
+
+Provide a helpful, professional response. Be empathetic and supportive. If the user needs medical attention, recommend consulting a healthcare provider. Keep responses concise but informative.`;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
 
     const consultation = await ctx.db.get(consultationId);
     if (consultation) {
@@ -242,8 +333,8 @@ async function generateAiResponse(ctx: any, consultationId: string, userMessage:
         authorId: consultation.userId, // Use user's ID for AI messages
         authorRole: "AI",
         messageType: "text",
-        content: `🤖 ${randomResponse}`,
-        metadata: { responseType: "general", confidence: 0.9 },
+        content: `🤖 ${text}`,
+        metadata: { responseType: "general", confidence: 0.9, fullPrompt: prompt },
         isAiGenerated: true,
         confidenceScore: 0.9,
         created_at: Date.now() + 1000, // Slight delay to simulate AI processing
@@ -251,6 +342,36 @@ async function generateAiResponse(ctx: any, consultationId: string, userMessage:
     }
   } catch (error) {
     console.error("AI response generation failed:", error);
+    // Fallback to mock response if API fails
+    await generateMockAiResponse(ctx, consultationId, userMessage);
+  }
+}
+
+// Fallback function for when API is not available
+async function generateMockAiResponse(ctx: any, consultationId: string, userMessage: string) {
+  const aiResponses = [
+    "I understand your concern. Can you tell me more about your symptoms?",
+    "Thank you for sharing that information. Let me analyze this for you.",
+    "Based on what you've described, I recommend monitoring your symptoms and consulting a healthcare provider if they worsen.",
+    "This sounds concerning. Would you like me to help you schedule an appointment with a specialist?",
+    "I can help you with that. Let me check our available providers and suggest the best match for your needs."
+  ];
+
+  const randomResponse = aiResponses[Math.floor(Math.random() * aiResponses.length)];
+
+  const consultation = await ctx.db.get(consultationId);
+  if (consultation) {
+    await ctx.db.insert("consultationMessages", {
+      consultationId,
+      authorId: consultation.userId, // Use user's ID for AI messages
+      authorRole: "AI",
+      messageType: "text",
+      content: `🤖 ${randomResponse}\n\nNote: Using fallback response mode. For better results, please provide your Gemini API key.",
+      metadata: { responseType: "fallback", confidence: 0.7 },
+      isAiGenerated: true,
+      confidenceScore: 0.7,
+      created_at: Date.now() + 1000, // Slight delay to simulate AI processing
+    });
   }
 }
 

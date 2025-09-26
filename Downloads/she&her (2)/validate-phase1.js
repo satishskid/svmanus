@@ -19,24 +19,124 @@ const mockCtx = {
   },
   db: {
     insert: async (table, data) => `mock-${table}-id-${Date.now()}`,
-    get: async (id) => ({ _id: id, ...data }),
+    get: async (id) => {
+      // Mock user profile for manager role
+      if (id === 'test-user-123' || id === 'mock-userProfiles-id-123') {
+        return {
+          _id: 'mock-userProfiles-id-123',
+          userId: 'test-user-123',
+          name: 'Test Manager',
+          role: 'MANAGER',
+          corporatePlanId: undefined,
+        };
+      }
+      return { _id: id, ...data };
+    },
     query: (table) => ({
       filter: (predicate) => ({
-        collect: async () => [],
-        first: async () => null,
-        unique: async () => null,
+        collect: async () => {
+          if (table === 'userProfiles') {
+            return [{
+              _id: 'mock-userProfiles-id-123',
+              userId: 'test-user-123',
+              name: 'Test Manager',
+              role: 'MANAGER',
+              corporatePlanId: undefined,
+            }];
+          }
+          return [];
+        },
+        first: async () => {
+          if (table === 'userProfiles') {
+            return {
+              _id: 'mock-userProfiles-id-123',
+              userId: 'test-user-123',
+              name: 'Test Manager',
+              role: 'MANAGER',
+              corporatePlanId: undefined,
+            };
+          }
+          return null;
+        },
+        unique: async () => {
+          if (table === 'userProfiles') {
+            return {
+              _id: 'mock-userProfiles-id-123',
+              userId: 'test-user-123',
+              name: 'Test Manager',
+              role: 'MANAGER',
+              corporatePlanId: undefined,
+            };
+          }
+          return null;
+        },
       }),
       withIndex: (index, query) => ({
-        collect: async () => [],
-        first: async () => null,
-        unique: async () => null,
+        collect: async () => {
+          if (table === 'userProfiles' && index === 'by_user_id') {
+            return [{
+              _id: 'mock-userProfiles-id-123',
+              userId: 'test-user-123',
+              name: 'Test Manager',
+              role: 'MANAGER',
+              corporatePlanId: undefined,
+            }];
+          }
+          if (table === 'provider_schedules') {
+            return [];
+          }
+          if (table === 'provider_availability') {
+            return [];
+          }
+          return [];
+        },
+        first: async () => {
+          if (table === 'userProfiles' && index === 'by_user_id') {
+            return {
+              _id: 'mock-userProfiles-id-123',
+              userId: 'test-user-123',
+              name: 'Test Manager',
+              role: 'MANAGER',
+              corporatePlanId: undefined,
+            };
+          }
+          return null;
+        },
+        unique: async () => {
+          if (table === 'userProfiles' && index === 'by_user_id') {
+            return {
+              _id: 'mock-userProfiles-id-123',
+              userId: 'test-user-123',
+              name: 'Test Manager',
+              role: 'MANAGER',
+              corporatePlanId: undefined,
+            };
+          }
+          return null;
+        },
         eq: (field, value) => ({
-          collect: async () => [],
+          collect: async () => {
+            if (table === 'provider_schedules' && field === 'provider_id') {
+              return [];
+            }
+            if (table === 'provider_availability' && field === 'provider_id') {
+              return [];
+            }
+            return [];
+          },
           first: async () => null,
           unique: async () => null,
         }),
       }),
-      collect: async () => [],
+      collect: async () => {
+        if (table === 'contracts') return [];
+        if (table === 'providers') return [];
+        if (table === 'appointments') return [];
+        if (table === 'appointment_reminders') return [];
+        if (table === 'appointment_reschedules') return [];
+        if (table === 'contract_beneficiaries') return [];
+        return [];
+      },
       order: (direction) => ({
         collect: async () => [],
         desc: () => ({ collect: async () => [] }),
@@ -48,6 +148,32 @@ const mockCtx = {
 };
 
 console.log('🚀 Starting Phase 1 Validation...\n');
+
+// Mock the _data import
+const mockDataModule = {
+  servicesMap: new Map([
+    ['serv1', { name: 'General Consultation', price: 1000 }],
+    ['serv2', { name: 'Gynecological Checkup', price: 2000 }],
+    ['serv3', { name: 'Prenatal Care', price: 1500 }],
+    ['serv4', { name: 'Expert Nutritionist', price: 1200 }],
+    ['serv5', { name: 'Mental Health Support', price: 1800 }],
+    ['serv6', { name: 'Fertility Consultation', price: 2500 }],
+    ['serv7', { name: 'Menopause Management', price: 1600 }],
+    ['serv8', { name: 'Hormone Therapy', price: 2200 }],
+    ['serv9', { name: 'Wellness Coaching', price: 1400 }],
+  ])
+};
+
+// Mock the import function
+const mockImport = async (path) => {
+  if (path === './_data') {
+    return mockDataModule;
+  }
+  throw new Error(`Cannot find module '${path}'`);
+};
+
+// Override the import function for testing
+global.import = mockImport;
 
 // Test data
 const mockProviderData = {
