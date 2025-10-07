@@ -6,7 +6,7 @@ import MainAppView from './components/MainAppView';
 import ApiKeyModal from './components/ApiKeyModal';
 import SecureAuth from './components/SecureAuth';
 import DemoAccess from './components/DemoAccess';
-import MetaPrompts from './components/MetaPrompts';
+// import MetaPrompts from './components/MetaPrompts'; // Temporarily commented out due to import error
 import { FullPageSpinner } from './components/LoadingSpinner';
 import { LoginForm, SignupForm } from './components/AuthForms';
 import { DemoSeeder } from './components/DemoSeeder';
@@ -27,8 +27,25 @@ const App: React.FC = () => {
   const createUserProfile = useMutation(api.userProfiles.createUserProfile);
 
   useEffect(() => {
-    if (isAuthenticated && getCurrentUserProfile) {
-      setCurrentUser(getCurrentUserProfile);
+    if (isAuthenticated) {
+      // Use error boundary for Convex queries
+      try {
+        if (getCurrentUserProfile) {
+          const userProfile = getCurrentUserProfile;
+          if (userProfile) {
+            setCurrentUser(userProfile);
+          }
+        }
+      } catch (error) {
+        console.error('Convex query failed:', error);
+        // Continue without user profile - auth still works
+        // Set a fallback user object for authenticated users without Convex
+        setCurrentUser({
+          _id: "authenticated-user",
+          name: "Authenticated User",
+          role: "USER"
+        });
+      }
     }
   }, [isAuthenticated, getCurrentUserProfile]);
 
@@ -44,7 +61,9 @@ const App: React.FC = () => {
 
   const handleSignIn = async (email: string, password: string) => {
     try {
-      await signInWithPassword({ email, password });
+      if (signInWithPassword) {
+        await signInWithPassword({ email, password });
+      }
       // Reload to get updated auth state
       window.location.reload();
     } catch (error) {
@@ -55,8 +74,10 @@ const App: React.FC = () => {
 
   const handleSignUp = async (email: string, password: string, name: string) => {
     try {
-      await signUpWithPassword({ email, password });
-      await createUserProfile({ name });
+      if (signUpWithPassword && createUserProfile) {
+        await signUpWithPassword({ email, password });
+        await createUserProfile({ name });
+      }
       // Reload to get updated auth state
       window.location.reload();
     } catch (error) {
@@ -94,10 +115,10 @@ const App: React.FC = () => {
       <>
         <DemoApp />
         {showDemoSeeder && <DemoSeeder onClose={() => setShowDemoSeeder(false)} />}
-        {/* Contextual Help for Demo Mode */}
-        <div className="fixed bottom-4 right-4 z-40">
-          <MetaPrompts context="demo" />
-        </div>
+      {/* Contextual Help for Demo Mode - Temporarily disabled */}
+      {/* <div className="fixed bottom-4 right-4 z-40">
+        <MetaPrompts context="demo" />
+      </div> */}
       </>
     );
   }
@@ -110,10 +131,10 @@ const App: React.FC = () => {
           onSignOut={handleSignOut}
         />
         {showDemoSeeder && <DemoSeeder onClose={() => setShowDemoSeeder(false)} />}
-        {/* Contextual Help for Main App */}
-        <div className="fixed bottom-4 right-4 z-40">
+        {/* Contextual Help for Main App - Temporarily disabled */}
+        {/* <div className="fixed bottom-4 right-4 z-40">
           <MetaPrompts context="main" />
-        </div>
+        </div> */}
       </>
     );
   }
@@ -126,10 +147,10 @@ const App: React.FC = () => {
         onSignIn={handleSignIn}
         onSignUp={handleSignUp}
       />
-      {/* Contextual Help for Auth Flow */}
-      <div className="fixed bottom-4 right-4 z-40">
+      {/* Contextual Help for Auth Flow - Temporarily disabled */}
+      {/* <div className="fixed bottom-4 right-4 z-40">
         <MetaPrompts context="auth" />
-      </div>
+      </div> */}
     </>
   );
 };

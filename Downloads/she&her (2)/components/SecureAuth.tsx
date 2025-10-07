@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import MetaPrompts from './MetaPrompts';
+// import MetaPrompts from './MetaPrompts'; // Temporarily commented out due to import error
 
 interface SecureAuthProps {
   onAccessGranted: () => void;
@@ -133,10 +133,10 @@ const SecureAuth: React.FC<SecureAuthProps> = ({ onAccessGranted }) => {
             )}
           </div>
 
-          {/* Common Questions Help */}
-          <div className="mt-4">
+          {/* Common Questions Help - Temporarily disabled */}
+          {/* <div className="mt-4">
             <MetaPrompts context="auth" />
-          </div>
+          </div> */}
         </div>
 
         {/* Footer */}
