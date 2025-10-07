@@ -4,86 +4,40 @@ import WelcomePage from './components/WelcomePage';
 import OnboardingFlow from './components/OnboardingFlow';
 import MainAppView from './components/MainAppView';
 import ApiKeyModal from './components/ApiKeyModal';
+import SecureAuth from './components/SecureAuth';
 import DemoAccess from './components/DemoAccess';
 import { FullPageSpinner } from './components/LoadingSpinner';
 import { LoginForm, SignupForm } from './components/AuthForms';
 import { DemoSeeder } from './components/DemoSeeder';
+import { useAuth } from './components/AuthContext';
 import { api } from 'convex/_generated/api';
 import { useQuery, useMutation } from 'convex/react';
 
-const DEMO_CODES = import.meta.env.VITE_DEMO_CODES?.split(',') || [
-  'SHEHER2025',      // Main demo code
-  'HEALTHCARE',      // Healthcare demo
-  'ENTERPRISE',      // Enterprise demo
-  'CORPORATE',       // Corporate demo
-  'PROVIDER',        // Provider demo
-  'MANAGER',         // Manager demo
-  'HRDEMO',          // HR demo
-  'USERDEMO',        // User demo
-  'SATISH',          // Personal demo code
-  'DEMO123',         // Simple demo code
-];
-
 const App: React.FC = () => {
+  const { isAuthenticated, isLoading, logout } = useAuth();
   const [showDemoSeeder, setShowDemoSeeder] = useState(false);
   const [demoMode, setDemoMode] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [demoAccessGranted, setDemoAccessGranted] = useState(false);
 
-  // Use Convex authentication
+  // Use Convex authentication for registered users
   const getCurrentUserProfile = useQuery(api.userProfiles.getCurrentUserProfile);
   const signInWithPassword = useMutation(api.auth.signInWithPassword);
   const signUpWithPassword = useMutation(api.auth.signUpWithPassword);
   const createUserProfile = useMutation(api.userProfiles.createUserProfile);
 
   useEffect(() => {
-    // Check for demo access first
-    const checkDemoAccess = () => {
-      const demoCode = localStorage.getItem('sheher_demo_access');
-      const demoTimestamp = localStorage.getItem('sheher_demo_timestamp');
-
-      // Check if demo access exists and is not expired (24 hours)
-      if (demoCode && DEMO_CODES.includes(demoCode) && demoTimestamp) {
-        const age = Date.now() - parseInt(demoTimestamp);
-        const maxAge = 24 * 60 * 60 * 1000; // 24 hours
-
-        if (age < maxAge) {
-          setDemoAccessGranted(true);
-          setDemoMode(true);
-          setIsLoading(false);
-          return;
-        } else {
-          // Demo access expired, clear it
-          localStorage.removeItem('sheher_demo_access');
-          localStorage.removeItem('sheher_demo_timestamp');
-        }
-      }
-    };
-
-    // Check authentication status
-    const checkAuth = async () => {
-      try {
-        const userProfile = getCurrentUserProfile;
-        if (userProfile) {
-          setIsAuthenticated(true);
-          setCurrentUser(userProfile);
-        }
-      } catch (error) {
-        console.log('Not authenticated');
-      }
-      setIsLoading(false);
-    };
-
-    checkDemoAccess();
-    if (!demoAccessGranted) {
-      checkAuth();
+    if (isAuthenticated && getCurrentUserProfile) {
+      setCurrentUser(getCurrentUserProfile);
     }
-  }, [getCurrentUserProfile, demoAccessGranted]);
+  }, [isAuthenticated, getCurrentUserProfile]);
+
+  const handleSecureAuthGranted = () => {
+    // Authentication is handled by useAuth hook
+    // This function is called when secure auth succeeds
+  };
 
   const handleDemoAccessGranted = () => {
-    setDemoAccessGranted(true);
+    // Keep demo access for backward compatibility during transition
     setDemoMode(true);
   };
 
@@ -112,8 +66,12 @@ const App: React.FC = () => {
 
   const handleSignOut = async () => {
     try {
-      // Clear local storage and reload
+      logout(); // Use the logout from useAuth hook
+      // Also clear any demo-related storage
       localStorage.removeItem('demo-auth');
+      localStorage.removeItem('sheher_demo_access');
+      localStorage.removeItem('sheher_demo_timestamp');
+      // Reload to get updated auth state
       window.location.reload();
     } catch (error) {
       console.error('Sign out failed:', error);
@@ -124,9 +82,9 @@ const App: React.FC = () => {
     return <FullPageSpinner />;
   }
 
-  // Show demo access screen if no demo access granted and not authenticated
-  if (!demoAccessGranted && !isAuthenticated && !demoMode) {
-    return <DemoAccess onAccessGranted={handleDemoAccessGranted} />;
+  // Show secure auth screen if not authenticated and not in demo mode
+  if (!isAuthenticated && !demoMode) {
+    return <SecureAuth onAccessGranted={handleSecureAuthGranted} />;
   }
 
   // Demo mode for testing without database

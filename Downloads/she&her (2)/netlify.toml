@@ -42,10 +42,17 @@
 # Environment variables for production
 [context.production.environment]
   VITE_CONVEX_URL = "https://clever-grouse-917.convex.cloud"
+  SITE_PASSWORD = "SheHerSecure2025!"
 
 # Environment variables for deploy previews
 [context.deploy-preview.environment]
   VITE_CONVEX_URL = "https://clever-grouse-917.convex.cloud"
+  SITE_PASSWORD = "SheHerSecure2025!"
+
+# Environment variables for branch deploys
+[context.branch-deploy.environment]
+  VITE_CONVEX_URL = "https://clever-grouse-917.convex.cloud"
+  SITE_PASSWORD = "SheHerSecure2025!"
 
 # Functions directory (if you add serverless functions later)
 [functions]
