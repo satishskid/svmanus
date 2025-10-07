@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Stage, Concern, ChatMessage } from '../types';
 import ChatMessageBubble from './ChatMessageBubble';
-import { PaperAirplaneIcon, ArrowLeftIcon, CalendarDaysIcon, ClipboardDocCheckIcon, SparklesIcon } from './Icons';
+import ConsultationBooking from './ConsultationBooking';
+import { PaperAirplaneIcon, ArrowLeftIcon, CalendarDaysIcon, ClipboardDocCheckIcon, SparklesIcon, UserIcon } from './Icons';
 
 interface ChatInterfaceProps {
   stage: Stage;
@@ -12,6 +13,9 @@ interface ChatInterfaceProps {
   onBack: () => void;
   onShowServices: () => void;
   onShowAppointments: () => void;
+  availableServices?: any[];
+  providerSlots?: any[];
+  onConfirmBooking?: (service: any, slot: any, consultSummary: string) => void;
 }
 
 const ChatInterface: React.FC<ChatInterfaceProps> = ({
@@ -22,9 +26,13 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   isLoading,
   onBack,
   onShowServices,
-  onShowAppointments
+  onShowAppointments,
+  availableServices = [],
+  providerSlots = [],
+  onConfirmBooking
 }) => {
   const [userInput, setUserInput] = useState('');
+  const [showConsultationBooking, setShowConsultationBooking] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -39,6 +47,17 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       onSendMessage(userInput);
       setUserInput('');
     }
+  };
+
+  const handleBookConsultation = () => {
+    setShowConsultationBooking(true);
+  };
+
+  const handleBookingComplete = (service: any, slot: any, consultSummary: string) => {
+    if (onConfirmBooking) {
+      onConfirmBooking(service, slot, consultSummary);
+    }
+    setShowConsultationBooking(false);
   };
 
   const stageColor = stage.color || 'bg-indigo-500';
@@ -211,6 +230,29 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
   const suggestedQuestions = getSuggestedQuestions(concern.id);
 
+  // Check if conversation suggests need for professional consultation
+  const shouldSuggestConsultation = chatMessages.length > 3 && chatMessages.some(msg =>
+    msg.text.toLowerCase().includes('pain') ||
+    msg.text.toLowerCase().includes('symptom') ||
+    msg.text.toLowerCase().includes('worry') ||
+    msg.text.toLowerCase().includes('concern') ||
+    msg.text.toLowerCase().includes('problem')
+  );
+
+  if (showConsultationBooking) {
+    return (
+      <ConsultationBooking
+        concern={concern}
+        stage={stage}
+        chatMessages={chatMessages}
+        availableServices={availableServices}
+        slots={providerSlots}
+        onConfirmBooking={handleBookingComplete}
+        onBack={() => setShowConsultationBooking(false)}
+      />
+    );
+  }
+
   return (
     <div className={`bg-white rounded-xl shadow-2xl flex flex-col h-[80vh] max-h-[800px] border-t-8 ${stageBorderColor}`}>
       <div className={`p-4 border-b border-gray-200 sticky top-0 bg-white rounded-t-xl z-10`}>
@@ -243,6 +285,15 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                   <CalendarDaysIcon className="h-5 w-5 mr-2" />
                   Book Services
               </button>
+              {shouldSuggestConsultation && (
+                <button
+                  onClick={handleBookConsultation}
+                  className="flex-shrink-0 flex items-center bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-bold py-2 px-3 rounded-lg shadow-md transition-all duration-200 transform hover:scale-105"
+                >
+                  <UserIcon className="h-5 w-5 mr-2" />
+                  Book Consultation
+                </button>
+              )}
             </div>
         </div>
       </div>
@@ -254,7 +305,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         {chatMessages.length === 0 && !isLoading && (
             <div className="text-center text-gray-500 py-10 space-y-4">
                 <p>Hello! I'm Asha. How can I help you today regarding "{concern.text}"?</p>
-                <p className="text-xs mt-2">I can provide information and support. For specific medical advice or services, please use the booking buttons above.</p>
+                <p className="text-xs mt-2">I can provide information and support. For personalized medical advice, I can help you book a consultation with a healthcare professional.</p>
 
                 {/* Suggested Questions */}
                 <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
@@ -317,6 +368,14 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           </button>
         </div>
         {isLoading && <p className="text-xs text-gray-500 mt-2 text-center">Asha is responding...</p>}
+        {shouldSuggestConsultation && chatMessages.length > 2 && (
+          <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800">
+              💡 <strong>Need personalized advice?</strong> I can help you book a consultation with a healthcare professional.
+              Your conversation context will be shared for continuity of care.
+            </p>
+          </div>
+        )}
       </form>
     </div>
   );
