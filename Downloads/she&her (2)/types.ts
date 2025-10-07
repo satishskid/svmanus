@@ -140,15 +140,29 @@ export interface Consultation {
   closed_at?: number;
 }
 
-export interface ConsultationMessage {
-  _id: string;
-  consultationId: string;
-  authorId: string;
-  authorRole: MessageAuthorRole;
-  messageType: ConsultationMessageType;
-  content: string;
-  metadata?: any;
-  isAiGenerated: boolean;
-  confidenceScore?: number;
-  created_at: number;
+export interface Prescription {
+  id: string;
+  patientId: string;
+  patientName: string;
+  patientAge?: string;
+  patientGender?: string;
+  doctorId: string;
+  doctorName: string;
+  doctorQualification: string;
+  doctorRegistration: string;
+  createdAt: Date;
+  validityPeriod?: string;
+  chiefComplaint: string;
+  diagnosis: string;
+  medications: Array<{
+    name: string;
+    dosage: string;
+    frequency: string;
+    duration: string;
+    instructions: string;
+    form: string;
+  }>;
+  additionalInstructions?: string;
+  followUp: string;
+  status: 'issued' | 'read' | 'expired';
 }
