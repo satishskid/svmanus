@@ -15,40 +15,59 @@ const SecureAuth: React.FC<SecureAuthProps> = ({ onAccessGranted }) => {
   React.useEffect(() => {
     const getIP = async () => {
       try {
-        // Use a different approach to avoid service worker caching issues
-        const response = await fetch('/api/ip', {
-          method: 'GET',
-          cache: 'no-cache', // Prevent caching
-          headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache'
-          }
-        }).catch(() => {
-          // Fallback to direct API call if proxy fails
-          return fetch('https://api.ipify.org?format=json', {
+        // Try multiple methods to get IP address without service worker issues
+        const methods = [
+          // Method 1: Try our own API endpoint first
+          () => fetch('/api/ip', {
+            method: 'GET',
+            cache: 'no-cache',
+            headers: {
+              'Cache-Control': 'no-cache, no-store, must-revalidate',
+              'Pragma': 'no-cache'
+            }
+          }),
+          // Method 2: Try direct API call with cache busting
+          () => fetch(`https://api.ipify.org/?format=json&_t=${Date.now()}`, {
             cache: 'no-cache',
             headers: {
               'Cache-Control': 'no-cache, no-store, must-revalidate'
             }
-          });
-        });
+          }),
+          // Method 3: Try alternative IP service
+          () => fetch(`https://api.ip.sb/ip`, {
+            cache: 'no-cache',
+            headers: {
+              'Cache-Control': 'no-cache, no-store, must-revalidate'
+            }
+          })
+        ];
 
-        if (response.ok) {
-          const data = await response.json();
-          setIpAddress(data.ip || 'unknown');
-        } else {
-          console.log('Could not get IP address - service unavailable');
-          setIpAddress('unknown');
+        for (const method of methods) {
+          try {
+            const response = await method();
+            if (response.ok) {
+              const data = await response.json();
+              const ip = data.ip || 'unknown';
+              setIpAddress(ip);
+              return; // Success, exit the loop
+            }
+          } catch (err) {
+            // Try next method
+            continue;
+          }
         }
-      } catch (err) {
-        console.log('Could not get IP address - network error');
+
+        // If all methods fail, set unknown
+        console.log('Could not get IP address from any service');
         setIpAddress('unknown');
-        // Continue without IP address - auth will still work
+      } catch (err) {
+        console.log('Could not get IP address - all methods failed');
+        setIpAddress('unknown');
       }
     };
 
     // Delay IP detection to avoid service worker conflicts
-    const timer = setTimeout(getIP, 1000);
+    const timer = setTimeout(getIP, 2000);
     return () => clearTimeout(timer);
   }, []);
 

@@ -39,8 +39,9 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         runtimeCaching: [
+          // Only cache same-origin API requests, not external APIs
           {
-            urlPattern: /^https:\/\/api\./,
+            urlPattern: ({ url }) => url.origin === location.origin && url.pathname.startsWith('/api/'),
             handler: 'NetworkFirst',
             options: {
               cacheName: 'api-cache',
@@ -49,8 +50,24 @@ export default defineConfig({
                 maxAgeSeconds: 60 * 60 * 24 // 24 hours
               }
             }
+          },
+          // Exclude external API requests from caching
+          {
+            urlPattern: /^https:\/\/api\./,
+            handler: 'NetworkOnly',
+            options: {
+              cacheName: 'external-api-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 // Only cache for 1 minute
+              }
+            }
           }
-        ]
+        ],
+        // Add navigation fallback for SPA routing
+        navigateFallback: '/index.html',
+        // Exclude external API requests from caching attempts
+        mode: 'production'
       },
       devOptions: {
         enabled: false
