@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-// import MetaPrompts from './MetaPrompts'; // Temporarily commented out due to import error
+import { useAuth } from './AuthContext';
 
 interface SecureAuthProps {
   onAccessGranted: () => void;
@@ -10,6 +10,7 @@ const SecureAuth: React.FC<SecureAuthProps> = ({ onAccessGranted }) => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [ipAddress, setIpAddress] = useState('');
+  const { login } = useAuth();
 
   // Get client IP address (for IP whitelisting if needed)
   React.useEffect(() => {
@@ -85,8 +86,8 @@ const SecureAuth: React.FC<SecureAuthProps> = ({ onAccessGranted }) => {
         if (password === 'SheHerSecure2025!' || password.length > 0) {
           console.log('Local development mode - granting access');
           // Store a mock token for local development
-          localStorage.setItem('sheher_access_token', 'local-dev-token');
-          localStorage.setItem('sheher_token_expiry', (Date.now() + 24 * 60 * 60 * 1000).toString());
+          const expiryTime = (Date.now() + 24 * 60 * 60 * 1000).toString();
+          login('local-dev-token', expiryTime);
           onAccessGranted();
           return;
         } else {
@@ -110,10 +111,8 @@ const SecureAuth: React.FC<SecureAuthProps> = ({ onAccessGranted }) => {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        // Store access token in localStorage
-        localStorage.setItem('sheher_access_token', data.accessToken);
-        localStorage.setItem('sheher_token_expiry', data.expiresAt.toString());
-
+        // Store access token in localStorage and update auth state
+        login(data.accessToken, data.expiresAt.toString());
         onAccessGranted();
       } else {
         setError(data.error || 'Authentication failed');
@@ -124,8 +123,8 @@ const SecureAuth: React.FC<SecureAuthProps> = ({ onAccessGranted }) => {
       // For local development, allow access with any password if Netlify functions fail
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         console.log('Local development mode - granting access due to network error');
-        localStorage.setItem('sheher_access_token', 'local-dev-token');
-        localStorage.setItem('sheher_token_expiry', (Date.now() + 24 * 60 * 60 * 1000).toString());
+        const expiryTime = (Date.now() + 24 * 60 * 60 * 1000).toString();
+        login('local-dev-token', expiryTime);
         onAccessGranted();
         return;
       }
