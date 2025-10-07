@@ -8,7 +8,7 @@ import ProviderProtocolView from './ProviderProtocolView';
 import AddNotesModal from './AddNotesModal';
 import { ClipboardDocCheckIcon, BookOpenIcon, UserCircleIcon, CalendarDaysIcon } from './Icons';
 
-type ProviderTab = 'appointments' | 'consultations' | 'protocols';
+type ProviderTab = 'appointments' | 'consultations' | 'analytics' | 'protocols';
 
 interface ProviderPortalProps {
   appointments: Appointment[];
@@ -242,6 +242,136 @@ const ProviderPortal: React.FC<ProviderPortalProps> = ({ appointments }) => {
     </div>
   );
 
+  const renderAnalyticsView = () => (
+    <div className="bg-white rounded-b-xl rounded-tr-xl shadow-lg">
+      <div className="p-6">
+        <h3 className="text-lg font-semibold text-gray-800 mb-6">Consultation Analytics</h3>
+
+        {/* Overview Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-6 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-blue-600 font-medium">Total Consultations</p>
+                <p className="text-3xl font-bold text-blue-800">{consultationHistory.length + activeConsultations.length}</p>
+              </div>
+              <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
+                <UserCircleIcon className="h-6 w-6 text-white" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-r from-green-50 to-green-100 p-6 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-green-600 font-medium">Avg. Consultation Time</p>
+                <p className="text-3xl font-bold text-green-800">25 min</p>
+              </div>
+              <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
+                <CalendarDaysIcon className="h-6 w-6 text-white" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-6 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-purple-600 font-medium">Patient Satisfaction</p>
+                <p className="text-3xl font-bold text-purple-800">4.8/5</p>
+              </div>
+              <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center">
+                <CheckCircleIcon className="h-6 w-6 text-white" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Consultation Trends */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <div className="bg-white border border-gray-200 rounded-lg p-6">
+            <h4 className="text-lg font-semibold text-gray-800 mb-4">Consultation Trends</h4>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">This Week</span>
+                <span className="text-lg font-semibold text-gray-800">12 consultations</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">This Month</span>
+                <span className="text-lg font-semibold text-gray-800">48 consultations</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Growth Rate</span>
+                <span className="text-lg font-semibold text-green-600">+15%</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white border border-gray-200 rounded-lg p-6">
+            <h4 className="text-lg font-semibold text-gray-800 mb-4">Service Breakdown</h4>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">General Consultation</span>
+                <div className="flex items-center space-x-2">
+                  <div className="w-20 bg-gray-200 rounded-full h-2">
+                    <div className="bg-blue-500 h-2 rounded-full" style={{ width: '60%' }}></div>
+                  </div>
+                  <span className="text-sm font-medium">60%</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Gynecology</span>
+                <div className="flex items-center space-x-2">
+                  <div className="w-20 bg-gray-200 rounded-full h-2">
+                    <div className="bg-pink-500 h-2 rounded-full" style={{ width: '25%' }}></div>
+                  </div>
+                  <span className="text-sm font-medium">25%</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Mental Health</span>
+                <div className="flex items-center space-x-2">
+                  <div className="w-20 bg-gray-200 rounded-full h-2">
+                    <div className="bg-purple-500 h-2 rounded-full" style={{ width: '15%' }}></div>
+                  </div>
+                  <span className="text-sm font-medium">15%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Recent Activity */}
+        <div className="bg-white border border-gray-200 rounded-lg p-6">
+          <h4 className="text-lg font-semibold text-gray-800 mb-4">Recent Activity</h4>
+          <div className="space-y-3">
+            {consultationHistory.slice(0, 5).map((consultation, index) => (
+              <div key={consultation.id || index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                    <CheckCircleIcon className="h-4 w-4 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-800">{consultation.patientName}</p>
+                    <p className="text-sm text-gray-600">{consultation.serviceName}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-medium text-gray-800">Completed</p>
+                  <p className="text-xs text-gray-500">
+                    {consultation.endTime ? new Date(consultation.endTime).toLocaleDateString() : 'Today'}
+                  </p>
+                </div>
+              </div>
+            ))}
+            {consultationHistory.length === 0 && (
+              <p className="text-gray-500 text-center py-8">No consultation history available</p>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <>
       <div className="space-y-8">
@@ -285,6 +415,17 @@ const ProviderPortal: React.FC<ProviderPortalProps> = ({ appointments }) => {
               )}
             </button>
             <button
+              onClick={() => setActiveTab('analytics')}
+              className={`flex items-center space-x-2 px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 transition-colors ${
+                activeTab === 'analytics'
+                  ? 'border-indigo-500 text-indigo-600 bg-white'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <CalendarDaysIcon className="h-5 w-5" />
+              <span>Analytics</span>
+            </button>
+            <button
               onClick={() => setActiveTab('protocols')}
               className={`flex items-center space-x-2 px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 transition-colors ${
                 activeTab === 'protocols'
@@ -300,6 +441,7 @@ const ProviderPortal: React.FC<ProviderPortalProps> = ({ appointments }) => {
 
         {activeTab === 'appointments' && renderAppointmentsView()}
         {activeTab === 'consultations' && renderConsultationsView()}
+        {activeTab === 'analytics' && renderAnalyticsView()}
         {activeTab === 'protocols' && <ProviderProtocolView productKnowledge={PRODUCT_KNOWLEDGE_DATA} ai={ai} />}
 
       </div>
