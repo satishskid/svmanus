@@ -45,6 +45,7 @@ interface MainAppViewProps {
 const MainAppView: React.FC<MainAppViewProps> = ({ currentUser, onOpenApiKeyModal, onSignOut }) => {
   const [patientContext, setPatientContext] = useState<PatientContext>('SELF');
   const [providerSlots] = useState<ProviderSlot[]>(generateInitialProviderSlots());
+  const [currentView, setCurrentView] = useState<'journey' | 'consultation' | 'appointments'>('journey');
 
   // The user role can be switched in the UI for demo purposes.
   // In a real app, this would be fixed based on the user's DB record.
@@ -100,20 +101,99 @@ const MainAppView: React.FC<MainAppViewProps> = ({ currentUser, onOpenApiKeyModa
         return <ProviderPortal appointments={allAppointments as Appointment[]} />;
       case 'USER':
       default:
-        // Show the full user journey with stages and chatbot
+        // Show navigation between journey and consultation features
         return (
           <div className="space-y-6">
-            <div className="bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg p-6 text-white">
-              <h2 className="text-2xl font-bold mb-2">Welcome to Your Health Journey</h2>
-              <p className="text-pink-100">Explore life stages and get personalized AI guidance</p>
+            {/* Navigation Tabs */}
+            <div className="bg-white rounded-lg shadow-md p-4">
+              <div className="flex space-x-1 border-b border-gray-200">
+                <button
+                  onClick={() => setCurrentView('journey')}
+                  className={`px-6 py-3 text-sm font-medium transition-colors ${
+                    currentView === 'journey'
+                      ? 'text-pink-600 border-b-2 border-pink-600 bg-pink-50'
+                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  Health Journey
+                </button>
+                <button
+                  onClick={() => setCurrentView('consultation')}
+                  className={`px-6 py-3 text-sm font-medium transition-colors ${
+                    currentView === 'consultation'
+                      ? 'text-pink-600 border-b-2 border-pink-600 bg-pink-50'
+                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  AI Consultation
+                </button>
+                <button
+                  onClick={() => setCurrentView('appointments')}
+                  className={`px-6 py-3 text-sm font-medium transition-colors ${
+                    currentView === 'appointments'
+                      ? 'text-pink-600 border-b-2 border-pink-600 bg-pink-50'
+                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  My Appointments
+                </button>
+              </div>
             </div>
-            <UserJourney
-              currentUser={currentUser}
-              currentPlan={currentPlan}
-              providerSlots={providerSlots}
-              userAppointments={userAppointments}
-              patientContext={patientContext}
-            />
+
+            {/* Content based on selected view */}
+            {currentView === 'journey' && (
+              <>
+                <div className="bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg p-6 text-white">
+                  <h2 className="text-2xl font-bold mb-2">Welcome to Your Health Journey</h2>
+                  <p className="text-pink-100">Explore life stages and get personalized AI guidance</p>
+                </div>
+                <UserJourney
+                  currentUser={currentUser}
+                  currentPlan={currentPlan}
+                  providerSlots={providerSlots}
+                  userAppointments={userAppointments}
+                  patientContext={patientContext}
+                />
+              </>
+            )}
+
+            {currentView === 'consultation' && (
+              <ConsultationPortal currentUser={currentUser} />
+            )}
+
+            {currentView === 'appointments' && (
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <h2 className="text-2xl font-bold text-gray-800 mb-4">My Appointments</h2>
+                {userAppointments.length > 0 ? (
+                  <div className="space-y-4">
+                    {userAppointments.map(appointment => (
+                      <div key={appointment._id} className="border border-gray-200 rounded-lg p-4">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="font-semibold text-gray-800">{appointment.serviceName}</h3>
+                            <p className="text-sm text-gray-600">
+                              {new Date(appointment.slotStartTime).toLocaleString()}
+                            </p>
+                            <span className={`inline-block px-2 py-1 text-xs rounded-full mt-2 ${
+                              appointment.status === 'Confirmed' ? 'bg-blue-100 text-blue-800' :
+                              appointment.status === 'Completed' ? 'bg-green-100 text-green-800' :
+                              'bg-gray-100 text-gray-800'
+                            }`}>
+                              {appointment.status}
+                            </span>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm text-gray-600">₹{appointment.pricePaid}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500 text-center py-8">No appointments found.</p>
+                )}
+              </div>
+            )}
           </div>
         );
     }

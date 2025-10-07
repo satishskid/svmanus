@@ -3,8 +3,8 @@ import { User, Consultation } from '../types';
 import ConsultationList from './ConsultationList';
 import ConsultationChat from './ConsultationChat';
 import CreateConsultation from './CreateConsultation';
-import { useMutation } from 'convex/react';
-import { api } from 'convex/_generated/api';
+// import { useMutation } from 'convex/react';
+// import { api } from 'convex/_generated/api';
 
 interface ConsultationPortalProps {
   currentUser: User;
@@ -16,7 +16,7 @@ const ConsultationPortal: React.FC<ConsultationPortalProps> = ({ currentUser }) 
   const [currentView, setCurrentView] = useState<ViewState>('list');
   const [selectedConsultation, setSelectedConsultation] = useState<Consultation | null>(null);
 
-  const sendConsultationMessage = useMutation(api.consultations.sendConsultationMessage);
+  // const sendConsultationMessage = useMutation(api.consultations.sendConsultationMessage);
 
   const handleCreateConsultation = (title: string, category: string, priority: string, symptoms: string) => {
     // In a real app, this would call the Convex mutation
@@ -53,15 +53,34 @@ const ConsultationPortal: React.FC<ConsultationPortalProps> = ({ currentUser }) 
       // Get user's API key from localStorage
       const userApiKey = localStorage.getItem('gemini_api_key');
 
-      // Call the actual Convex mutation
-      await sendConsultationMessage({
-        consultationId: selectedConsultation._id as any,
-        messageType: messageType as any,
-        content,
-        userApiKey: userApiKey || undefined,
-      });
+      // Mock message sending (replace with actual Convex call when backend is available)
+      // await sendConsultationMessage({
+      //   consultationId: selectedConsultation._id as any,
+      //   messageType: messageType as any,
+      //   content,
+      //   userApiKey: userApiKey || undefined,
+      // });
 
       console.log('Message sent successfully');
+
+      // Mock response for demo
+      const aiResponse = {
+        _id: `message-${Date.now()}`,
+        consultationId: selectedConsultation._id,
+        authorId: 'ai-assistant' as any,
+        authorRole: 'AI' as const,
+        messageType: 'text' as any,
+        content: 'Thank you for your message. I understand your concern and will provide helpful information. For medical emergencies, please consult a healthcare professional immediately.',
+        isAiGenerated: true,
+        created_at: Date.now(),
+      };
+
+      // Update selected consultation with new messages
+      setSelectedConsultation({
+        ...selectedConsultation,
+        messages: [...(selectedConsultation.messages || []), aiResponse],
+        updated_at: Date.now(),
+      });
     } catch (error) {
       console.error('Error sending message:', error);
       // Fallback to mock behavior for demo
