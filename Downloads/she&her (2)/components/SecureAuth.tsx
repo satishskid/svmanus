@@ -77,12 +77,34 @@ const SecureAuth: React.FC<SecureAuthProps> = ({ onAccessGranted }) => {
     setError('');
 
     try {
+      // Check if running locally (no Netlify functions available)
+      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+      if (isLocal) {
+        // Local development mode - accept password "SheHerSecure2025!" or any password for testing
+        if (password === 'SheHerSecure2025!' || password.length > 0) {
+          console.log('Local development mode - granting access');
+          // Store a mock token for local development
+          localStorage.setItem('sheher_access_token', 'local-dev-token');
+          localStorage.setItem('sheher_token_expiry', (Date.now() + 24 * 60 * 60 * 1000).toString());
+          onAccessGranted();
+          return;
+        } else {
+          setError('Please enter the correct password');
+          return;
+        }
+      }
+
+      // Production mode - use Netlify functions
       const response = await fetch('/.netlify/functions/auth-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ password, ip: ipAddress }),
+        body: JSON.stringify({
+          password,
+          ip: ipAddress,
+        }),
       });
 
       const data = await response.json();
@@ -97,10 +119,21 @@ const SecureAuth: React.FC<SecureAuthProps> = ({ onAccessGranted }) => {
         setError(data.error || 'Authentication failed');
       }
     } catch (error) {
-      setError('Network error. Please try again.');
-    }
+      console.error('Authentication error:', error);
 
-    setIsLoading(false);
+      // For local development, allow access with any password if Netlify functions fail
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        console.log('Local development mode - granting access due to network error');
+        localStorage.setItem('sheher_access_token', 'local-dev-token');
+        localStorage.setItem('sheher_token_expiry', (Date.now() + 24 * 60 * 60 * 1000).toString());
+        onAccessGranted();
+        return;
+      }
+
+      setError('Network error. Please check your connection and try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
