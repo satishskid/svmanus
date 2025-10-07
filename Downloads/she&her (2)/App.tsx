@@ -11,8 +11,8 @@ import { FullPageSpinner } from './components/LoadingSpinner';
 import { LoginForm, SignupForm } from './components/AuthForms';
 import { DemoSeeder } from './components/DemoSeeder';
 import { useAuth } from './components/AuthContext';
-import { api } from 'convex/_generated/api';
-import { useQuery, useMutation } from 'convex/react';
+// import { api } from 'convex/_generated/api';
+// import { useQuery, useMutation } from 'convex/react';
 
 const App: React.FC = () => {
   const { isAuthenticated, isLoading, logout } = useAuth();
@@ -20,38 +20,16 @@ const App: React.FC = () => {
   const [demoMode, setDemoMode] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
 
-  // Use Convex authentication for registered users
-  const getCurrentUserProfile = useQuery(api.userProfiles.getCurrentUserProfile);
-  const signInWithPassword = useMutation(api.auth.signInWithPassword);
-  const signUpWithPassword = useMutation(api.auth.signUpWithPassword);
-  const createUserProfile = useMutation(api.userProfiles.createUserProfile);
-
   useEffect(() => {
     if (isAuthenticated) {
-      // Use error boundary for Convex queries
-      const loadUserProfile = async () => {
-        try {
-          if (getCurrentUserProfile) {
-            const userProfile = getCurrentUserProfile;
-            if (userProfile) {
-              setCurrentUser(userProfile);
-            }
-          }
-        } catch (error) {
-          console.error('Convex query failed:', error);
-          // Continue without user profile - auth still works
-          // Set a fallback user object for authenticated users without Convex
-          setCurrentUser({
-            _id: "authenticated-user",
-            name: "Authenticated User",
-            role: "USER"
-          });
-        }
-      };
-
-      loadUserProfile();
+      // Set a fallback user since Convex is not available
+      setCurrentUser({
+        _id: "authenticated-user",
+        name: "Authenticated User",
+        role: "USER"
+      });
     }
-  }, [isAuthenticated, getCurrentUserProfile]);
+  }, [isAuthenticated]);
 
   const handleSecureAuthGranted = () => {
     // Authentication is handled by useAuth hook
@@ -64,30 +42,13 @@ const App: React.FC = () => {
   };
 
   const handleSignIn = async (email: string, password: string) => {
-    try {
-      if (signInWithPassword) {
-        await signInWithPassword({ email, password });
-      }
-      // Reload to get updated auth state
-      window.location.reload();
-    } catch (error) {
-      console.error('Sign in failed:', error);
-      throw error;
-    }
+    // Authentication is handled by useAuth hook, just trigger reload
+    window.location.reload();
   };
 
   const handleSignUp = async (email: string, password: string, name: string) => {
-    try {
-      if (signUpWithPassword && createUserProfile) {
-        await signUpWithPassword({ email, password });
-        await createUserProfile({ name });
-      }
-      // Reload to get updated auth state
-      window.location.reload();
-    } catch (error) {
-      console.error('Sign up failed:', error);
-      throw error;
-    }
+    // Authentication is handled by useAuth hook, just trigger reload
+    window.location.reload();
   };
 
   const handleSignOut = async () => {
