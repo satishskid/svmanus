@@ -2,6 +2,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+import ErrorBoundary from './components/ErrorBoundary';
 import { ConvexProvider, ConvexReactClient } from "convex/react";
 import './index.css'; // Main CSS file for Tailwind
 
@@ -22,8 +23,10 @@ if (!rootElement) {
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    <ConvexProvider client={convex}>
-      <App />
-    </ConvexProvider>
+    <ErrorBoundary>
+      <ConvexProvider client={convex}>
+        <App />
+      </ConvexProvider>
+    </ErrorBoundary>
   </React.StrictMode>
 );

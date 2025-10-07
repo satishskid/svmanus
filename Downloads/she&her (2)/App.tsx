@@ -6,7 +6,7 @@ import MainAppView from './components/MainAppView';
 import ApiKeyModal from './components/ApiKeyModal';
 import SecureAuth from './components/SecureAuth';
 import DemoAccess from './components/DemoAccess';
-// import MetaPrompts from './components/MetaPrompts'; // Temporarily commented out due to import error
+import ErrorBoundary from './components/ErrorBoundary';
 import { FullPageSpinner } from './components/LoadingSpinner';
 import { LoginForm, SignupForm } from './components/AuthForms';
 import { DemoSeeder } from './components/DemoSeeder';
@@ -29,23 +29,27 @@ const App: React.FC = () => {
   useEffect(() => {
     if (isAuthenticated) {
       // Use error boundary for Convex queries
-      try {
-        if (getCurrentUserProfile) {
-          const userProfile = getCurrentUserProfile;
-          if (userProfile) {
-            setCurrentUser(userProfile);
+      const loadUserProfile = async () => {
+        try {
+          if (getCurrentUserProfile) {
+            const userProfile = getCurrentUserProfile;
+            if (userProfile) {
+              setCurrentUser(userProfile);
+            }
           }
+        } catch (error) {
+          console.error('Convex query failed:', error);
+          // Continue without user profile - auth still works
+          // Set a fallback user object for authenticated users without Convex
+          setCurrentUser({
+            _id: "authenticated-user",
+            name: "Authenticated User",
+            role: "USER"
+          });
         }
-      } catch (error) {
-        console.error('Convex query failed:', error);
-        // Continue without user profile - auth still works
-        // Set a fallback user object for authenticated users without Convex
-        setCurrentUser({
-          _id: "authenticated-user",
-          name: "Authenticated User",
-          role: "USER"
-        });
-      }
+      };
+
+      loadUserProfile();
     }
   }, [isAuthenticated, getCurrentUserProfile]);
 
@@ -106,52 +110,44 @@ const App: React.FC = () => {
 
   // Show secure auth screen if not authenticated and not in demo mode
   if (!isAuthenticated && !demoMode) {
-    return <SecureAuth onAccessGranted={handleSecureAuthGranted} />;
+    return (
+      <ErrorBoundary>
+        <SecureAuth onAccessGranted={handleSecureAuthGranted} />
+      </ErrorBoundary>
+    );
   }
 
   // Demo mode for testing without database
   if (demoMode) {
     return (
-      <>
+      <ErrorBoundary>
         <DemoApp />
         {showDemoSeeder && <DemoSeeder onClose={() => setShowDemoSeeder(false)} />}
-      {/* Contextual Help for Demo Mode - Temporarily disabled */}
-      {/* <div className="fixed bottom-4 right-4 z-40">
-        <MetaPrompts context="demo" />
-      </div> */}
-      </>
+      </ErrorBoundary>
     );
   }
 
   if (isAuthenticated && currentUser) {
     return (
-      <>
+      <ErrorBoundary>
         <AuthenticatedApp
           currentUser={currentUser}
           onSignOut={handleSignOut}
         />
         {showDemoSeeder && <DemoSeeder onClose={() => setShowDemoSeeder(false)} />}
-        {/* Contextual Help for Main App - Temporarily disabled */}
-        {/* <div className="fixed bottom-4 right-4 z-40">
-          <MetaPrompts context="main" />
-        </div> */}
-      </>
+      </ErrorBoundary>
     );
   }
 
   return (
-    <>
+    <ErrorBoundary>
       <UnauthenticatedApp
         onShowDemo={() => setShowDemoSeeder(true)}
         onEnableDemo={() => setDemoMode(true)}
         onSignIn={handleSignIn}
         onSignUp={handleSignUp}
       />
-      {/* Contextual Help for Auth Flow - Temporarily disabled */}
-      {/* <div className="fixed bottom-4 right-4 z-40">
-        <MetaPrompts context="auth" />
-      </div> */}
-    </>
+    </ErrorBoundary>
   );
 };
 

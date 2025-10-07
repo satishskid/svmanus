@@ -15,20 +15,41 @@ const SecureAuth: React.FC<SecureAuthProps> = ({ onAccessGranted }) => {
   React.useEffect(() => {
     const getIP = async () => {
       try {
-        const response = await fetch('https://api.ipify.org?format=json');
+        // Use a different approach to avoid service worker caching issues
+        const response = await fetch('/api/ip', {
+          method: 'GET',
+          cache: 'no-cache', // Prevent caching
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache'
+          }
+        }).catch(() => {
+          // Fallback to direct API call if proxy fails
+          return fetch('https://api.ipify.org?format=json', {
+            cache: 'no-cache',
+            headers: {
+              'Cache-Control': 'no-cache, no-store, must-revalidate'
+            }
+          });
+        });
+
         if (response.ok) {
           const data = await response.json();
-          setIpAddress(data.ip);
+          setIpAddress(data.ip || 'unknown');
         } else {
           console.log('Could not get IP address - service unavailable');
+          setIpAddress('unknown');
         }
       } catch (err) {
         console.log('Could not get IP address - network error');
+        setIpAddress('unknown');
         // Continue without IP address - auth will still work
       }
     };
 
-    getIP();
+    // Delay IP detection to avoid service worker conflicts
+    const timer = setTimeout(getIP, 1000);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
