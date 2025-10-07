@@ -1,20 +1,20 @@
-
-
 import React, { useState, useMemo } from 'react';
 import { GoogleGenAI } from "@google/genai";
-import { useMutation } from 'convex/react';
-import { api } from 'convex/_generated/api';
-import { Appointment, ProductKnowledge } from '../types';
-import AddNotesModal from './AddNotesModal';
-import ProviderProtocolView from './ProviderProtocolView';
-import { ClipboardDocCheckIcon, BookOpenIcon } from './Icons';
+// import { useMutation } from "convex/react";
+// import { api } from "convex/_generated/api";
+import { Appointment } from '../types';
 import { PRODUCT_KNOWLEDGE_DATA } from '../constants';
+// import StatusBadge from './StatusBadge';
+// import TabButton from './TabButton';
+import ProviderProtocolView from './ProviderProtocolView';
+import AddNotesModal from './AddNotesModal';
+import { ClipboardDocCheckIcon, BookOpenIcon } from './Icons';
+
+type ProviderTab = 'appointments' | 'protocols';
 
 interface ProviderPortalProps {
   appointments: Appointment[];
 }
-
-type ProviderTab = 'appointments' | 'protocols';
 
 const StatusBadge: React.FC<{ status: Appointment['status'] }> = ({ status }) => {
     const colorClasses = {
@@ -39,8 +39,8 @@ const ProviderPortal: React.FC<ProviderPortalProps> = ({ appointments }) => {
   const [activeTab, setActiveTab] = useState<ProviderTab>('appointments');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
-  const updateStatus = useMutation(api.appointments.updateAppointmentStatus);
-  const addNotes = useMutation(api.appointments.addAppointmentNotes);
+  // const updateStatus = useMutation(api.appointments.updateAppointmentStatus);
+  // const addNotes = useMutation(api.appointments.addAppointmentNotes);
 
   const ai = useMemo(() => {
     // Fix: Cast import.meta to any to resolve TypeScript error.
@@ -56,7 +56,8 @@ const ProviderPortal: React.FC<ProviderPortalProps> = ({ appointments }) => {
   
   const handleSaveNotes = (notes: string) => {
       if(selectedAppointment) {
-          addNotes({ id: selectedAppointment._id, notes });
+          // Since Convex is not available, just log the action
+          console.log('Adding notes for appointment:', selectedAppointment._id, notes);
       }
       setIsModalOpen(false);
       setSelectedAppointment(null);
@@ -81,9 +82,9 @@ const ProviderPortal: React.FC<ProviderPortalProps> = ({ appointments }) => {
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{new Date(appt.slotStartTime).toLocaleString()}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{appt.user.name}{appt.patientContext !== 'SELF' && <span className="block text-xs italic">(for {appt.patientContext.toLowerCase()})</span>}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{appt.serviceName}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm"><StatusBadge status={appt.status} /></td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm"><span className={`px-2 py-1 text-xs font-semibold rounded-full ${appt.status === 'Confirmed' ? 'bg-blue-100 text-blue-800' : appt.status === 'Completed' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{appt.status}</span></td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-4">
-                  {appt.status === 'Confirmed' && <button onClick={() => updateStatus({ id: appt._id, status: 'Completed' })} className="text-green-600 hover:text-green-900">Mark Completed</button>}
+                  {appt.status === 'Confirmed' && <button onClick={() => console.log('Marking appointment as completed:', appt._id)} className="text-green-600 hover:text-green-900">Mark Completed</button>}
                   {appt.status === 'Completed' && <button onClick={() => handleOpenNotesModal(appt)} className="text-indigo-600 hover:text-indigo-900">{appt.notes ? 'Edit Notes' : 'Add Notes'}</button>}
                 </td>
               </tr>
@@ -106,8 +107,14 @@ const ProviderPortal: React.FC<ProviderPortalProps> = ({ appointments }) => {
         
         <div className="border-b border-gray-200">
           <nav className="-mb-px flex space-x-2">
-            <TabButton tabId="appointments" activeTab={activeTab} onClick={setActiveTab} icon={ClipboardDocCheckIcon}>Appointments</TabButton>
-            <TabButton tabId="protocols" activeTab={activeTab} onClick={setActiveTab} icon={BookOpenIcon}>Protocols & Training</TabButton>
+            <button onClick={() => setActiveTab('appointments')} className={`flex items-center space-x-2 px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 transition-colors ${activeTab === 'appointments' ? 'border-indigo-500 text-indigo-600 bg-white' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
+              <ClipboardDocCheckIcon className="h-5 w-5" />
+              <span>Appointments</span>
+            </button>
+            <button onClick={() => setActiveTab('protocols')} className={`flex items-center space-x-2 px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 transition-colors ${activeTab === 'protocols' ? 'border-indigo-500 text-indigo-600 bg-white' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
+              <BookOpenIcon className="h-5 w-5" />
+              <span>Protocols & Training</span>
+            </button>
           </nav>
         </div>
 
