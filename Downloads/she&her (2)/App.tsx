@@ -6,6 +6,7 @@ import MainAppView from './components/MainAppView';
 import ApiKeyModal from './components/ApiKeyModal';
 import SecureAuth from './components/SecureAuth';
 import DemoAccess from './components/DemoAccess';
+import MetaPrompts from './components/MetaPrompts';
 import { FullPageSpinner } from './components/LoadingSpinner';
 import { LoginForm, SignupForm } from './components/AuthForms';
 import { DemoSeeder } from './components/DemoSeeder';
@@ -93,6 +94,10 @@ const App: React.FC = () => {
       <>
         <DemoApp />
         {showDemoSeeder && <DemoSeeder onClose={() => setShowDemoSeeder(false)} />}
+        {/* Contextual Help for Demo Mode */}
+        <div className="fixed bottom-4 right-4 z-40">
+          <MetaPrompts context="demo" />
+        </div>
       </>
     );
   }
@@ -105,17 +110,27 @@ const App: React.FC = () => {
           onSignOut={handleSignOut}
         />
         {showDemoSeeder && <DemoSeeder onClose={() => setShowDemoSeeder(false)} />}
+        {/* Contextual Help for Main App */}
+        <div className="fixed bottom-4 right-4 z-40">
+          <MetaPrompts context="main" />
+        </div>
       </>
     );
   }
 
   return (
-    <UnauthenticatedApp
-      onShowDemo={() => setShowDemoSeeder(true)}
-      onEnableDemo={() => setDemoMode(true)}
-      onSignIn={handleSignIn}
-      onSignUp={handleSignUp}
-    />
+    <>
+      <UnauthenticatedApp
+        onShowDemo={() => setShowDemoSeeder(true)}
+        onEnableDemo={() => setDemoMode(true)}
+        onSignIn={handleSignIn}
+        onSignUp={handleSignUp}
+      />
+      {/* Contextual Help for Auth Flow */}
+      <div className="fixed bottom-4 right-4 z-40">
+        <MetaPrompts context="auth" />
+      </div>
+    </>
   );
 };
 

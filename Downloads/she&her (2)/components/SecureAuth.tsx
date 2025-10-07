@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import MetaPrompts from './MetaPrompts';
 
 interface SecureAuthProps {
   onAccessGranted: () => void;
@@ -12,10 +13,22 @@ const SecureAuth: React.FC<SecureAuthProps> = ({ onAccessGranted }) => {
 
   // Get client IP address (for IP whitelisting if needed)
   React.useEffect(() => {
-    fetch('https://api.ipify.org?format=json')
-      .then(response => response.json())
-      .then(data => setIpAddress(data.ip))
-      .catch(err => console.log('Could not get IP address'));
+    const getIP = async () => {
+      try {
+        const response = await fetch('https://api.ipify.org?format=json');
+        if (response.ok) {
+          const data = await response.json();
+          setIpAddress(data.ip);
+        } else {
+          console.log('Could not get IP address - service unavailable');
+        }
+      } catch (err) {
+        console.log('Could not get IP address - network error');
+        // Continue without IP address - auth will still work
+      }
+    };
+
+    getIP();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -118,6 +131,11 @@ const SecureAuth: React.FC<SecureAuthProps> = ({ onAccessGranted }) => {
                 Your IP: {ipAddress}
               </p>
             )}
+          </div>
+
+          {/* Common Questions Help */}
+          <div className="mt-4">
+            <MetaPrompts context="auth" />
           </div>
         </div>
 
