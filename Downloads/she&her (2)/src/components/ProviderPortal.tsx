@@ -6,7 +6,7 @@ import { Appointment } from '../types';
 import { PRODUCT_KNOWLEDGE_DATA } from '../constants';
 import ProviderProtocolView from './ProviderProtocolView';
 import AddNotesModal from './AddNotesModal';
-import { ClipboardDocCheckIcon, BookOpenIcon, UserCircleIcon, CalendarDaysIcon } from './Icons';
+import { ClipboardDocCheckIcon, BookOpenIcon, UserCircleIcon, CalendarDaysIcon, CheckCircleIcon } from './Icons';
 
 type ProviderTab = 'appointments' | 'consultations' | 'analytics' | 'protocols';
 
