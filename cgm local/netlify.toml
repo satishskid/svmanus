@@ -1,0 +1,8 @@
+[build]
+  publish = "child-growth-monitor"
+  command = ""
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
