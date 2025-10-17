@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="SKIDS EYEAR - Pediatric Vision & Hearing Screening Admin Portal" />
+    <meta name="theme-color" content="#4a6fa5" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16x16.png" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <title>SKIDS EYEAR Admin</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+        background-color: #f9fafb;
+      }
+    </style>
+    <script type="module" crossorigin src="/assets/index--mOUKhkI.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      // Service Worker Registration for offline support
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', async () => {
+          navigator.serviceWorker.register('/service-worker.js')
+            .then(reg => {
+              console.log('Service Worker registered:', reg);
+              
+              // Check for updates periodically
+              setInterval(() => {
+                reg.update();
+              }, 60000);
+            })
+            .catch(err => console.error('Service Worker registration failed:', err));
+        });
+
+        // Listen for controller change (app update)
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          console.log('App updated - new version available');
+          // Notify user about update
+          window.location.reload();
+        });
+      }
+    </script>
+  </body>
+</html>

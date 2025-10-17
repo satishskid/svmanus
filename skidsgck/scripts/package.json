@@ -1,0 +1,17 @@
+{
+  "name": "skids-eyear-scripts",
+  "private": true,
+  "version": "1.0.0",
+  "type": "commonjs",
+  "dependencies": {
+    "pdfkit": "^0.13.0",
+    "qrcode": "^1.5.1"
+  },
+  "scripts": {
+    "qr:roster": "node generate_qr_roster.js students_sample.json roster.pdf",
+    "hl7:test": "node -e \"const { fhirToHL7 } = require('./fhir-to-hl7'); const bundle = require('./fhir_sample.json'); console.log(fhirToHL7(bundle));\" > out.hl7"
+  },
+  "devDependencies": {
+    "jest": "^30.2.0"
+  }
+}

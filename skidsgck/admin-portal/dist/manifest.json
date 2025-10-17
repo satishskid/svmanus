@@ -1,0 +1,68 @@
+{
+  "name": "SKIDS EYEAR - Pediatric Vision & Hearing Screening",
+  "short_name": "SKIDS EYEAR",
+  "description": "Admin Portal for pediatric vision and hearing screening platform",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#4a6fa5",
+  "background_color": "#ffffff",
+  "categories": ["healthcare", "education"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/dashboard-540x720.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "/screenshots/dashboard-1280x720.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "View screening analytics",
+      "url": "/?screen=dashboard",
+      "icons": [{ "src": "/icons/dashboard-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Import Roster",
+      "short_name": "Import",
+      "description": "Bulk import child profiles",
+      "url": "/?screen=importer",
+      "icons": [{ "src": "/icons/import-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

@@ -1,0 +1,191 @@
+name: SKIDS EYEAR - Continuous Integration
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  # Mobile App Tests
+  mobile-app-tests:
+    name: Mobile App Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: app/package-lock.json
+      
+      - name: Install dependencies
+        run: |
+          cd app
+          npm ci
+      
+      - name: Run tests
+        run: |
+          cd app
+          npm test -- --coverage
+      
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./app/coverage/lcov.info
+          flags: mobile-app
+          name: mobile-app-coverage
+  
+  # Admin Portal Tests
+  admin-portal-tests:
+    name: Admin Portal Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: admin-portal/package-lock.json
+      
+      - name: Install dependencies
+        run: |
+          cd admin-portal
+          npm ci
+      
+      - name: Run tests
+        run: |
+          cd admin-portal
+          npm test -- --coverage
+      
+      - name: Build admin portal
+        run: |
+          cd admin-portal
+          npm run build
+      
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./admin-portal/coverage/lcov.info
+          flags: admin-portal
+          name: admin-portal-coverage
+      
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: admin-portal-dist
+          path: admin-portal/dist
+          retention-days: 7
+  
+  # E2E Tests
+  e2e-tests:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    needs: admin-portal-tests
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      
+      - name: Install admin portal dependencies
+        run: |
+          cd admin-portal
+          npm ci
+      
+      - name: Install test dependencies
+        run: |
+          cd tests
+          npm ci
+      
+      - name: Install Playwright browsers
+        run: |
+          cd tests
+          npx playwright install --with-deps
+      
+      - name: Run E2E tests
+        run: |
+          cd tests
+          npm run test:e2e
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-report
+          path: tests/playwright-report
+          retention-days: 30
+      
+      - name: Upload test screenshots
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-screenshots
+          path: tests/test-results
+          retention-days: 30
+  
+  # Lint and Code Quality
+  code-quality:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      
+      - name: Install admin portal dependencies
+        run: |
+          cd admin-portal
+          npm ci
+      
+      - name: Install mobile app dependencies
+        run: |
+          cd app
+          npm ci
+      
+      - name: Check for security vulnerabilities
+        run: |
+          cd admin-portal
+          npm audit --audit-level=high
+          cd ../app
+          npm audit --audit-level=high
+      
+      - name: Check bundle size
+        run: |
+          cd admin-portal
+          npm run build
+          echo "Checking bundle size..."
+          SIZE=$(du -sb dist | cut -f1)
+          MAX_SIZE=524288  # 512KB
+          if [ $SIZE -gt $MAX_SIZE ]; then
+            echo "Bundle size $SIZE exceeds maximum $MAX_SIZE"
+            exit 1
+          fi
+          echo "Bundle size OK: $SIZE bytes"
+  
+  # All tests passed
+  all-tests-passed:
+    name: All Tests Passed
+    runs-on: ubuntu-latest
+    needs: [mobile-app-tests, admin-portal-tests, e2e-tests, code-quality]
+    
+    steps:
+      - name: All tests passed
+        run: echo "✅ All tests passed successfully!"

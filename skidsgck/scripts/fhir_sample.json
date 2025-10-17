@@ -1,0 +1,40 @@
+{
+  "resourceType": "Bundle",
+  "id": "test-bundle",
+  "type": "collection",
+  "timestamp": "2025-01-01T00:00:00.000Z",
+  "entry": [
+    {
+      "fullUrl": "Patient/S1001",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "S1001",
+        "identifier": [{ "system": "http://school.edu/students", "value": "STU-001" }],
+        "name": [{ "text": "Amina Ali" }],
+        "birthDate": "2019-05-12"
+      }
+    },
+    {
+      "fullUrl": "Observation/va-1",
+      "resource": {
+        "resourceType": "Observation",
+        "status": "final",
+        "code": { "coding": [{ "system": "http://loinc.org", "code": "59610-3" }] },
+        "subject": { "reference": "Patient/S1001" },
+        "effectiveDateTime": "2025-01-01T00:00:00.000Z",
+        "valueString": "0.3 (logMAR)"
+      }
+    },
+    {
+      "fullUrl": "Observation/hearing-1",
+      "resource": {
+        "resourceType": "Observation",
+        "status": "final",
+        "code": { "coding": [{ "system": "http://loinc.org", "code": "69737-5" }] },
+        "subject": { "reference": "Patient/S1001" },
+        "effectiveDateTime": "2025-01-01T00:00:00.000Z",
+        "valueString": "{\"1000_30dB\":true,\"2000_30dB\":true,\"4000_30dB\":false}"
+      }
+    }
+  ]
+}

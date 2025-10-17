@@ -1,0 +1,5 @@
+[
+  { "student_id": "S1001", "full_name": "Amina Ali", "date_of_birth": "2019-05-12" },
+  { "student_id": "S1002", "full_name": "Jamal Khan", "date_of_birth": "2018-03-24" },
+  { "student_id": "S1003", "full_name": "Leila Noor", "date_of_birth": "2017-11-02" }
+]
