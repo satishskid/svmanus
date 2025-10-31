@@ -1,0 +1,29 @@
+[build]
+  publish = "."
+  command = "echo 'No build required'"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[context.production]
+  environment = { CONTEXT = "production" }
+
+[context.deploy-preview]
+  environment = { CONTEXT = "deploy-preview" }
+
+[context.branch-deploy]
+  environment = { CONTEXT = "branch-deploy" }
+
+# Cache settings
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+

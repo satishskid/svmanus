@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Screener PWA - Vision & Hearing Screening App</title>
+    <meta name="description" content="Fast, non-invasive preliminary screening for vision and hearing health. Download the Health Screener PWA today.">
+    <meta name="theme-color" content="#0891b2">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #1f2937;
+            background: linear-gradient(135deg, #f0f9ff 0%, #f0fdfa 100%);
+        }
+
+        header {
+            background: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #0891b2;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #4b5563;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #0891b2;
+        }
+
+        .hero {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #1f2937;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: #6b7280;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #0891b2;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0e7490;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(8, 145, 178, 0.2);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #0891b2;
+            border: 2px solid #0891b2;
+        }
+
+        .btn-secondary:hover {
+            background: #f0f9ff;
+            transform: translateY(-2px);
+        }
+
+        .features {
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+
+        .features h2 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 3rem;
+            color: #1f2937;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            color: #0891b2;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-card p {
+            color: #6b7280;
+            font-size: 0.95rem;
+        }
+
+        .how-it-works {
+            background: white;
+            margin: 4rem 0;
+            padding: 3rem 2rem;
+        }
+
+        .how-it-works-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .how-it-works h2 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 3rem;
+            color: #1f2937;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .step {
+            text-align: center;
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 3rem;
+            height: 3rem;
+            background: #0891b2;
+            color: white;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .step h3 {
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .step p {
+            color: #6b7280;
+        }
+
+        .disclaimer {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 1.5rem;
+            margin: 3rem auto;
+            max-width: 800px;
+            border-radius: 0.5rem;
+        }
+
+        .disclaimer h3 {
+            color: #92400e;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .disclaimer p {
+            color: #78350f;
+            font-size: 0.95rem;
+        }
+
+        .user-manual {
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+
+        .user-manual h2 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: #1f2937;
+        }
+
+        .manual-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        }
+
+        .manual-section {
+            margin-bottom: 2rem;
+        }
+
+        .manual-section h3 {
+            color: #0891b2;
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+
+        .manual-section ol, .manual-section ul {
+            margin-left: 2rem;
+            color: #4b5563;
+            line-height: 1.8;
+        }
+
+        .manual-section li {
+            margin-bottom: 0.5rem;
+        }
+
+        footer {
+            background: #1f2937;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-content p {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #9ca3af;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: #0891b2;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .steps {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .download-link {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background: #0891b2;
+            color: white;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .download-link:hover {
+            background: #0e7490;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav>
+            <div class="logo">
+                👁️ Health Screener
+            </div>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#how-it-works">How It Works</a></li>
+                <li><a href="#manual">User Guide</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>Quick Vision & Hearing Screening</h1>
+        <p>Fast, non-invasive preliminary screening for your vision and hearing health. Get results in minutes.</p>
+        <div class="cta-buttons">
+            <a href="#download" class="btn btn-primary">Download App</a>
+            <a href="#manual" class="btn btn-secondary">View User Guide</a>
+        </div>
+    </section>
+
+    <!-- Disclaimer -->
+    <div class="disclaimer">
+        <h3>⚠️ Important Medical Disclaimer</h3>
+        <p>This application is designed for <strong>preliminary screening and educational purposes only</strong>. Results are NOT diagnostic and do not constitute medical advice. Always consult with qualified healthcare professionals for proper diagnosis and treatment.</p>
+    </div>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <h2>What We Offer</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">👁️</div>
+                <h3>Vision Screening</h3>
+                <p><strong>Photoscreening:</strong> Detects red reflex and eye alignment issues</p>
+                <p style="margin-top: 0.5rem;"><strong>Visual Acuity Test:</strong> Interactive Snellen chart for distance vision assessment</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">👂</div>
+                <h3>Hearing Screening</h3>
+                <p><strong>Pure Tone Audiometry:</strong> Tests hearing at multiple frequencies</p>
+                <p style="margin-top: 0.5rem;"><strong>Speech-in-Noise:</strong> Evaluates real-world listening ability</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <h3>Privacy Protected</h3>
+                <p>Your screening data is securely stored and never shared without your consent. Full control over your health information.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>Quick & Easy</h3>
+                <p>Complete both screenings in under 20 minutes from your device. No special equipment needed.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📱</div>
+                <h3>Progressive Web App</h3>
+                <p>Works on any device with a browser. Install like a native app or use online. No app store required.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Instant Results</h3>
+                <p>Get immediate feedback on your screening results with clear recommendations for next steps.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="how-it-works-content">
+            <h2>How It Works</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Sign Up</h3>
+                    <p>Create an account with your email. If you're whitelisted, you'll get instant access.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Select Screening</h3>
+                    <p>Choose between Vision Screening, Hearing Screening, or both.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Complete Test</h3>
+                    <p>Follow on-screen instructions. Tests take 5-12 minutes each.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>Get Results</h3>
+                    <p>Receive immediate results and recommendations. Consult a professional if needed.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- User Manual -->
+    <section class="user-manual" id="manual">
+        <h2>User Guide</h2>
+        <div class="manual-content">
+            <div class="manual-section">
+                <h3>📥 Getting Started</h3>
+                <ol>
+                    <li><strong>Access the App:</strong> Visit the app URL or install it as a PWA on your device</li>
+                    <li><strong>Log In:</strong> Sign in with your email address</li>
+                    <li><strong>Check Access:</strong> If your email is whitelisted, you'll have immediate access</li>
+                    <li><strong>Select Screening:</strong> Choose Vision, Hearing, or both from the home page</li>
+                </ol>
+            </div>
+
+            <div class="manual-section">
+                <h3>👁️ Vision Screening Guide</h3>
+                <ol>
+                    <li><strong>Photoscreening:</strong>
+                        <ul style="margin-top: 0.5rem;">
+                            <li>Allow camera access when prompted</li>
+                            <li>Position your face in front of the camera</li>
+                            <li>The app will detect red reflex and eye alignment</li>
+                            <li>Results show normal, abnormal, or unclear findings</li>
+                        </ul>
+                    </li>
+                    <li><strong>Visual Acuity Test:</strong>
+                        <ul style="margin-top: 0.5rem;">
+                            <li>Sit at arm's length from your device (approximately 50cm)</li>
+                            <li>Cover one eye and read the letters/symbols</li>
+                            <li>Start from the largest line and work downward</li>
+                            <li>Continue until you can no longer read clearly</li>
+                            <li>Repeat for the other eye</li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+
+            <div class="manual-section">
+                <h3>👂 Hearing Screening Guide</h3>
+                <ol>
+                    <li><strong>Preparation:</strong>
+                        <ul style="margin-top: 0.5rem;">
+                            <li>Use headphones or earbuds for best results</li>
+                            <li>Find a quiet environment</li>
+                            <li>Adjust volume to a comfortable level during calibration</li>
+                        </ul>
+                    </li>
+                    <li><strong>Pure Tone Audiometry:</strong>
+                        <ul style="margin-top: 0.5rem;">
+                            <li>Listen for tones at different frequencies</li>
+                            <li>Click "I Heard It" when you detect a tone</li>
+                            <li>The app will adjust volume automatically</li>
+                            <li>Tests both ears at 6 different frequencies</li>
+                        </ul>
+                    </li>
+                    <li><strong>Speech-in-Noise Test:</strong>
+                        <ul style="margin-top: 0.5rem;">
+                            <li>Listen to words spoken in background noise</li>
+                            <li>Select the word you heard from multiple choices</li>
+                            <li>Simulates real-world listening conditions</li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+
+            <div class="manual-section">
+                <h3>📊 Understanding Your Results</h3>
+                <ol>
+                    <li><strong>Vision Results:</strong>
+                        <ul style="margin-top: 0.5rem;">
+                            <li><strong>Pass:</strong> Normal findings, no concerns</li>
+                            <li><strong>Refer:</strong> Abnormal findings, consult an eye care professional</li>
+                            <li><strong>Inconclusive:</strong> Unclear results, consider retesting or professional evaluation</li>
+                        </ul>
+                    </li>
+                    <li><strong>Hearing Results:</strong>
+                        <ul style="margin-top: 0.5rem;">
+                            <li><strong>Thresholds:</strong> Measured in dB HL (Hearing Level)</li>
+                            <li><strong>Normal:</strong> Thresholds ≤ 25 dB HL</li>
+                            <li><strong>Mild Loss:</strong> Thresholds 26-40 dB HL</li>
+                            <li><strong>Moderate Loss:</strong> Thresholds > 40 dB HL</li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+
+            <div class="manual-section">
+                <h3>⚠️ When to Seek Professional Help</h3>
+                <ul>
+                    <li>Any abnormal or inconclusive vision screening results</li>
+                    <li>Hearing thresholds above 25 dB HL</li>
+                    <li>Difficulty understanding speech in noisy environments</li>
+                    <li>Any concerns about your vision or hearing</li>
+                    <li>If results don't match your expectations</li>
+                </ul>
+            </div>
+
+            <div class="manual-section">
+                <h3>❓ Frequently Asked Questions</h3>
+                <p><strong>Q: Is this a medical diagnosis?</strong><br>
+                A: No. This is a preliminary screening tool only. Always consult healthcare professionals for diagnosis.</p>
+                <p style="margin-top: 1rem;"><strong>Q: How often should I screen?</strong><br>
+                A: This depends on your age and risk factors. Consult your healthcare provider for recommendations.</p>
+                <p style="margin-top: 1rem;"><strong>Q: Can I use this with glasses/contacts?</strong><br>
+                A: Yes. Note in the app if you're using correction for accurate interpretation.</p>
+                <p style="margin-top: 1rem;"><strong>Q: What if I get different results each time?</strong><br>
+                A: Screening results can vary due to environment, fatigue, or device differences. Professional evaluation is recommended for confirmation.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Download Section -->
+    <section id="download" style="text-align: center; padding: 3rem 2rem; background: white; margin: 3rem 0;">
+        <div style="max-width: 600px; margin: 0 auto;">
+            <h2 style="font-size: 2rem; margin-bottom: 1rem; color: #1f2937;">Ready to Get Started?</h2>
+            <p style="color: #6b7280; margin-bottom: 2rem; font-size: 1.1rem;">
+                Request access to the Health Screener PWA. Trial users get 3 days free. Paid subscriptions include 1 year of access.
+            </p>
+            <a href="mailto:contact@example.com?subject=Health%20Screener%20Access%20Request" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2rem;">
+                Request Access
+            </a>
+            <p style="color: #9ca3af; margin-top: 1rem; font-size: 0.9rem;">
+                Or contact us at: <strong>contact@example.com</strong>
+            </p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2025 Health Screener PWA. All rights reserved.</p>
+            <p style="color: #9ca3af; font-size: 0.9rem; margin-top: 1rem;">
+                This application is for preliminary screening and educational purposes only. Always consult qualified healthcare professionals.
+            </p>
+            <div class="footer-links">
+                <a href="#privacy">Privacy Policy</a>
+                <a href="#terms">Terms of Service</a>
+                <a href="#contact">Contact Us</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
+
